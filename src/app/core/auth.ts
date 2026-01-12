@@ -52,7 +52,7 @@ export class AuthService {
   /** تسجيل دخول عبر الـ API */
   async login(email: string, password: string): Promise<boolean> {
     try {
-      const res = await this.http.post<{ token: string; role: User['role'] }>(`${API_BASE_URL}/auth/login`, { Email: email, Password: password }).toPromise();
+      const res = await this.http.post<{ token: string; role: User['role'] }>(`${API_BASE_URL}/Auth/login`, { Email: email, Password: password }).toPromise();
       if (!res || !res.token) return false;
       localStorage.setItem('token', res.token);
       if (res.role) {
