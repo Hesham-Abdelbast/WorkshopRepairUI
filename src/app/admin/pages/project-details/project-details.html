@@ -1,0 +1,184 @@
+<!-- details panel (simple modal-ish) -->
+<div class="details-overlay">
+  <div class="details-panel">
+    <button class="close-btn" (click)="doClose()">×</button>
+    <p>Carlton Group · Damascus</p>
+    <h3>{{ taskss?.Project }}</h3>
+    <p>Manager: S. Haddad · Created: 2025-05-18 · Address: Shukri Al-Quwatli St</p>
+  <div class="details-page-tabs">
+    <button class="details-tab-btn" [class.active]="detailsTab === 'Overview'" (click)="setTab('Overview')">Overview</button>
+    <button class="details-tab-btn" [class.active]="detailsTab === 'Scopes'" (click)="setTab('Scopes')">Scopes/Contracts</button>
+    <button class="details-tab-btn" [class.active]="detailsTab === 'Unit'" (click)="setTab('Unit')">Unit</button>
+    <button class="details-tab-btn" [class.active]="detailsTab === 'Tasks'" (click)="setTab('Tasks')">Tasks</button>
+    <button class="details-tab-btn" [class.active]="detailsTab === 'Reports'" (click)="setTab('Reports')">Reports</button>
+    <button class="details-tab-btn" [class.active]="detailsTab === 'Billing'" (click)="setTab('Billing')">Billing</button>
+    <button class="details-tab-btn" [class.active]="detailsTab === 'File'" (click)="setTab('File')">File</button>
+    </div>
+    <ng-container *ngIf="detailsTab==='Overview'">
+  <!-- 📊 Status Summary Cards -->
+<div class="status-summary">
+  <div class="summary-card">
+    <span class="label">Scopes</span>
+    <span class="count">{{taskss?.Scopes}}</span>
+  </div>
+  <div class="summary-card">
+    <span class="label">Active scopes</span>
+    <span class="count">{{taskss?.Scopes}}</span>
+  </div>
+  <div class="summary-card">
+    <span class="label">Booked value</span>
+    <span class="count">{{taskss?.BookedValue}}</span>
+  </div>
+  <div class="summary-card">
+    <span class="label">Outstanding</span>
+    <span class="count">$18,000</span>
+  </div>
+</div>    
+</ng-container>
+    <ng-container *ngIf="detailsTab==='Scopes'">
+      <div class="table-container">
+  <table class="responsive-table">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Title</th>
+        <th>Contract</th>
+        <th>Start</th>
+        <th>End</th>
+        <th>Value</th>
+        <th>Collected</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let scope of scopes">
+        <td>{{scope.type || 'Maintenance'}}</td>
+        <td>{{scope.title || scope.name}}</td>
+        <td>{{scope.contractNumber}}</td>
+        <td>{{scope.startDate}}</td>
+        <td>{{scope.endDate}}</td>
+        <td>{{scope.value}}</td>
+        <td>{{scope.collected}}</td>
+        <td><span class="statusActive">{{scope.status || 'Active'}}</span></td>
+      </tr>
+      <tr *ngIf="scopes.length === 0">
+        <td colspan="8">No scopes found</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+    </ng-container>
+    <ng-container *ngIf="detailsTab==='Unit'">
+       <div class="table-container">
+  <table class="responsive-table">
+    <thead>
+      <tr>
+        <th>Code</th>
+        <th>System	</th>
+        <th>Model</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let unit of units">
+        <td>{{unit.code || unit.Code}}</td>
+        <td>{{unit.unitType || unit.UnitType}}</td>
+        <td>{{unit.model || unit.Model}}</td>
+        <td>{{unit.status || unit.Status}}</td>
+      </tr>
+      <tr *ngIf="units.length === 0">
+        <td colspan="4">No units found</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+    </ng-container>
+    <ng-container *ngIf="detailsTab==='Tasks'">
+            <div class="table-container">
+  <table class="responsive-table">
+    <thead>
+      <tr>
+        <th>Task</th>
+        <th>Status</th>
+        <th>Due</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let task of projectTasks">
+        <td>{{task.title || task.name}}</td>
+        <td><span class="status-Scheduled">{{task.status}}</span></td>
+        <td>{{task.dueDate}}</td>
+      </tr>
+      <tr *ngIf="projectTasks.length === 0">
+        <td colspan="3">No tasks found</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+    </ng-container>
+    <ng-container *ngIf="detailsTab==='Reports'">
+                  <div class="table-container">
+  <table class="responsive-table">
+    <thead>
+      <tr>
+        <th>Report</th>
+        <th>Date</th>
+        <th>Technician</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let report of reports">
+        <td>{{report.reportId || report.title}}</td>
+        <td>{{report.date}}</td>
+        <td>{{report.technician}}</td>
+      </tr>
+      <tr *ngIf="reports.length === 0">
+        <td colspan="3">No reports found</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+    </ng-container>
+    <ng-container *ngIf="detailsTab==='Billing'">
+      <div class="table-container">
+        <table class="responsive-table">
+          <thead>
+            <tr>
+              <th>Invoice</th>
+              <th>Date</th>
+              <th>Due</th>
+              <th>Amount</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let inv of invoices">
+              <td>{{inv.invoiceNumber}}</td>
+              <td>{{inv.issueDate}}</td>
+              <td>{{inv.dueDate}}</td>
+              <td>{{inv.amount}}</td>
+              <td>{{inv.status}}</td>
+            </tr>
+            <tr *ngIf="invoices.length === 0">
+              <td colspan="5">No invoices found</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </ng-container>
+    <ng-container *ngIf="detailsTab==='File'">
+      <div class="file-tab">
+      <ul>
+          <li>Site Plan.pdf</li>
+          <li>Elevator Specs.docx</li>
+          <button class="upload-btn">Upload</button>
+        </ul>
+      </div>
+    </ng-container>
+              <button class="upload-btn">Create Work Order</button>
+          <button class="upload-btn">New Invoice</button>
+          <button class="upload-btn">Share</button>
+
+  
+  </div>
+  </div>

@@ -1,0 +1,464 @@
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 1.5rem 0 0.5rem 0;
+}
+.page-btn {
+  background: none;
+  border: none;
+  color: #222;
+  font-size: 1rem;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.page-btn.active {
+  background: #ffe066;
+  color: #222;
+  font-weight: bold;
+}
+.page-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.tab-btn {
+  background: none;
+  border: none;
+  font-size: 1rem;
+  font-weight: 300;
+  color: black;
+  padding: 0.5rem 1.5rem;
+  border-radius: 4px 4px 0 0;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-bottom 0.2s;
+}
+
+/* الحالة العادية والهفر */
+.tab-btn:hover {
+  border-bottom: 3px solid #000;   /* خط أسود عند الهفر */
+}
+
+/* الحالة المختارة */
+.tab-btn.active {
+  background: none;                /* بدون خلفية */
+  color: #000;                     /* لون النص */
+  border-bottom: 3px solid #000;   /* خط أسود */
+  box-shadow: none;                /* شيل الظل */
+}
+
+.task-list {
+  background: #fff;
+  padding: 1rem;
+  border-radius: 4px;
+    padding-top: 20px;
+  width: 99%;
+  table {
+    width: 100%;
+    border-collapse: collapse;
+
+    th, td {
+      padding: .5rem;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+    }
+
+    th {
+      font-weight: 600;
+    }
+
+    tr:hover {
+      background: #fafafa;
+      cursor: pointer;
+    }
+  }
+}
+
+/* task-toolbar */
+/* Toolbar */
+.task-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #1b1616; /* اللون الأسود الغامق */
+  padding: 0.5rem 1rem;
+  border-radius: 10px;
+}
+
+/* Left icons */
+.toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 1rem;
+  cursor: pointer;
+   padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s, filter 0.2s;
+}
+
+.icon-btn:hover {
+  color: #ffcc00; /* لون hover */
+}
+/* make image yallow on hover */
+.icon-btn:hover img {
+  filter: brightness(0) saturate(100%) invert(70%) sepia(98%) saturate(1234%) hue-rotate(1deg) brightness(105%) contrast(105%);
+}
+
+
+/* Right search box */
+
+.search-input::placeholder {
+  color: #aaa;
+}
+
+/* Filters */
+.task-filters {
+  margin-top: 0.8rem;
+  display: flex;
+  gap: 1rem;
+}
+
+
+.date-picker {
+  padding: 6px 10px;
+  width: 250px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 0.9rem;
+}
+
+.dropdown{
+  padding: 6px 10px;
+  width: 200px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 0.9rem;
+}
+
+.search-input {
+  display: flex;
+  align-items: center;
+  gap: 8px;                    /* مسافة بين الزرار والـ input */
+  padding: 4px 8px 4px 8px;
+  border-radius: 15px;
+  border: 1px solid #FFFFFF1A;
+  background: #333;
+  color: #FFFFFFEB;
+  font-size: 0.9rem;
+  width: 220px;
+}
+
+.search-input button {
+  background: transparent;      /* نفس خلفية الـ box */
+  border: none;                 /* من غير بوردر */
+  cursor: pointer;              /* شكل اليد */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;                   /* نشيل أي مساحة جوه الزر */
+}
+
+.search-input button:hover .search-icon {
+  opacity: 1;                   /* شوية إضاءة لما يقرب */
+}
+
+.search-input .search-icon {
+  width: 14px;
+  height: 14px;
+  object-fit: contain;
+  opacity: 0.8;
+}
+
+.search-input .forSearch {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #FFFFFFEB;
+  font-family: fontfamily/Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.search-input .forSearch::placeholder {
+  color: #aaa;
+}
+
+/* ////////////////////////// */
+/* اجعل الخط باهت */
+.faded {
+  color: #b0b3b9;
+  font-weight: 400;
+}
+
+/* checkbox */
+table th:first-child, table td:first-child {
+  width: 36px;
+  text-align: center;
+}
+input[type="checkbox"] {
+  accent-color: #ffe066;
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+/* اجعل الـ Update باللون الأصفر */
+.update-link {
+  color: #ffe066;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+}
+.update-link:hover {
+  text-decoration: underline;
+}
+  /* // اللون في ال Priority */
+.priority-pill {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 50px;       /* الشكل الكبسولي */
+  font-size: 12px;
+  font-weight: 500;
+  color: #fff;
+  text-align: center;
+  width: auto;               /* ✅ الكبسولة على قد الكلمة فقط */
+  white-space: nowrap;       /* عشان الكلمة ما تنزلش سطر */
+}
+
+/* الألوان الثلاثة */
+.yellow-pill {
+  background-color: #f80000; /* أصفر */
+  color: #1b1616;
+}
+
+.green-pill {
+  background-color: #f7aaaa; /* أخضر */
+}
+
+.blue-pill {
+  background-color: #2196f3; /* أزرق */
+}
+  
+/* ===== Responsive Table (Suggested Repairs) ===== */
+
+/* من أول 900px لتحت */
+@media (max-width: 900px) {
+  .task-filters {
+    flex-wrap: wrap;
+    gap: 0.6rem;
+  }
+
+  .dropdown,
+  .date-picker {
+    width: 48%;
+  }
+   .search-input {
+    width: 200px;
+  }
+
+  /* .search-input {
+    width: 100%;
+    margin-top: 0.5rem;
+  }
+
+  .task-toolbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.6rem;
+  }
+
+  .toolbar-right {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+  } */
+}
+
+/* لما تكون الشاشة أقل من 768px */
+@media (max-width: 768px) {
+  .task-list table,
+  .task-list thead,
+  .task-list tbody,
+  .task-list th,
+  .task-list td,
+  .task-list tr {
+    display: block;
+  }
+
+  .task-list thead {
+    display: none; /* نخفي العناوين */
+  }
+
+  .task-list tr {
+    background: #fff;
+    margin-bottom: 1rem;
+    border-radius: 6px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    padding: 0.5rem;
+  }
+
+  .task-list td {
+    border: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.4rem 0.6rem;
+    font-size: 0.9rem;
+    border-bottom: 1px solid #eee;
+  }
+
+  .task-list td:last-child {
+    border-bottom: none;
+  }
+
+  .task-list td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: #555;
+    text-transform: capitalize;
+  }
+
+  .task-list input[type="checkbox"] {
+    transform: scale(1.1);
+  }
+}
+
+/* لما تكون الشاشة أقل من 500px */
+@media (max-width: 500px) {
+  .task-list td {
+    font-size: 0.8rem;
+  }
+
+  .task-list td::before {
+    font-size: 0.75rem;
+  }
+
+  .dropdown,
+  .date-picker {
+    width: 100%;
+  }
+
+  .pagination {
+    flex-wrap: wrap;
+  }
+
+  .priority-pill {
+    font-size: 10px;
+    padding: 3px 8px;
+  }
+}
+
+/* Details Panel Side Bar */
+.details-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.4);
+  z-index: 1000;
+  display: flex;
+  justify-content: flex-end; /* Align right */
+}
+
+.details-panel {
+  width: 400px;
+  max-width: 90%;
+  background: #fff;
+  height: 100%;
+  box-shadow: -2px 0 8px rgba(0,0,0,0.2);
+  display: flex;
+  flex-direction: column;
+  animation: slideInRight 0.3s ease-out;
+}
+
+@keyframes slideInRight {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+.details-header {
+  padding: 1rem;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.details-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.details-body {
+  padding: 1rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.detail-row {
+  margin-bottom: 1rem;
+}
+
+.detail-row label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 0.3rem;
+  color: #555;
+}
+
+.detail-row input,
+.detail-row select,
+.detail-row textarea {
+  width: 100%;
+  padding: 0.6rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.details-footer {
+  padding: 1rem;
+  border-top: 1px solid #eee;
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+.btn-cancel {
+  background: #f3f4f6;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-save {
+  background: #ffe066;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+}

@@ -1,0 +1,141 @@
+<div class="cnv-backdrop">
+  <div class="cnv-modal report-modal">
+    <button class="cnv-close" (click)="doClose()">✕</button>
+
+    <!-- <h2>Add New Unit</h2> -->
+
+    <div class="report-form-grid">
+
+      <!-- Unit Number -->
+      <!-- <label>Unit number -->
+        <input type="text" [(ngModel)]="form.UnitNumber" name="UnitNumber" placeholder="Unit number" 
+        [ngClass]="{'input-error': submitted && !form.UnitNumber}"
+        />
+      <!-- </label> -->
+
+      <!-- Link Unit to Project (optional) -->
+      <label>
+        <select [(ngModel)]="selectedProjectId" name="Project">
+          <option [ngValue]="null" disabled selected>Project (optional)</option>
+          <option *ngFor="let p of projects" [ngValue]="p.id">{{ p.name }}</option>
+        </select>
+      </label>
+
+      <!-- Unit Name -->
+      <!-- <label>Unit name -->
+        <input type="text" [(ngModel)]="form.unitName" name="unitName" placeholder="Unit name"
+        [ngClass]="{'input-error': submitted && !form.unitName}"
+        />
+      <!-- </label> -->
+
+      <!-- Project -->
+      <!-- <label>Project -->
+        <select [(ngModel)]="selectedClientId" name="Client"
+          [ngClass]="{'input-error': submitted && !selectedClientId}"
+        >
+          <option [ngValue]="null" disabled selected>Client</option>
+          <option *ngFor="let c of clients" [ngValue]="c.id">{{ c.name }}</option>
+        </select>
+      <!-- </label> -->
+
+      <!-- Building -->
+      <!-- <label>Building -->
+        <select [(ngModel)]="form.Building" name="Building"
+          [ngClass]="{'input-error': submitted && !form.Building}"
+        >
+          <option value="" disabled selected>Building</option>
+          <option *ngFor="let b of buildings" [value]="b">{{ b }}</option>
+        </select>
+      <!-- </label> -->
+
+      <!-- Capacity -->
+      <!-- <label>Capacity -->
+        <input type="text" [(ngModel)]="form.Capacity" name="Capacity" placeholder="Capacity" 
+          [ngClass]="{'input-error': submitted && !form.Capacity}"/>
+      <!-- </label> -->
+
+      <!-- Elevator Type -->
+      <!-- <label>Elevator Type -->
+        <select [(ngModel)]="form.ElevatorType" name="ElevatorType"
+          [ngClass]="{'input-error': submitted && !form.ElevatorType}">
+          <option value="" disabled selected>Elevator Type</option>
+          <option *ngFor="let e of elevatorTypes" [value]="e">{{ e }}</option>
+        </select>
+      <!-- </label> -->
+
+      <!-- No. People -->
+      <!-- <label>NO. People -->
+        <input type="number" [(ngModel)]="form.NoPeople" name="NoPeople" placeholder="No. People" 
+          [ngClass]="{'input-error': submitted && !form.NoPeople}"/>
+      <!-- </label> -->
+
+      <!-- Motor Type -->
+      <!-- <label>Motor type -->
+        <select [(ngModel)]="form.MotorType" name="MotorType"
+          [ngClass]="{'input-error': submitted && !form.MotorType}">
+          <option value="" disabled selected>Motor Type</option>
+          <option *ngFor="let m of motorTypes" [value]="m">{{ m }}</option>
+        </select>
+      <!-- </label> -->
+
+      <!-- Speed -->
+      <!-- <label>Speed -->
+        <input type="text" [(ngModel)]="form.Speed" name="Speed" placeholder="Speed" 
+          [ngClass]="{'input-error': submitted && !form.Speed}"/>
+      <!-- </label> -->
+
+      <!-- Control System -->
+      <!-- <label>Control system -->
+        <select [(ngModel)]="form.ControlSystem" name="ControlSystem"
+          [ngClass]="{'input-error': submitted && !form.ControlSystem}">
+          <option value="" disabled selected>Control System</option>
+          <option *ngFor="let c of controlSystems" [value]="c">{{ c }}</option>
+        </select>
+      <!-- </label> -->
+
+      <!-- No. Floors -->
+      <!-- <label>NO. Floors -->
+        <input type="number" [(ngModel)]="form.NoFloors" name="NoFloors" placeholder="No. floors" 
+          [ngClass]="{'input-error': submitted && !form.NoFloors}"/>
+      <!-- </label> -->
+
+      <!-- Drive System -->
+      <!-- <label>Drive system -->
+        <select [(ngModel)]="form.DriveSystem" name="DriveSystem"
+          [ngClass]="{'input-error': submitted && !form.DriveSystem}">
+          <option value="" disabled selected>Drive System</option>
+          <option *ngFor="let d of driveSystems" [value]="d">{{ d }}</option>
+        </select>
+      <!-- </label> -->
+
+      <!-- Address (with map suggestions) -->
+      <label class="full-width">
+        <input type="text"
+               [(ngModel)]="addressQuery"
+               name="siteAddress"
+               placeholder="Unit address"
+               (input)="onAddressInput()">
+      </label>
+      <div class="address-suggestions" *ngIf="showAddressDropdown">
+        <div class="suggestion"
+             *ngFor="let s of addressSuggestions"
+             (click)="selectSuggestion(s)">
+          {{ s.display_name }}
+        </div>
+      </div>
+
+      <!-- Description -->
+      <label class="full-width">
+        <textarea [(ngModel)]="form.Description" name="Description" placeholder="Add description"></textarea>
+      </label>
+
+    </div>
+
+    <!-- Buttons -->
+    <!-- <div class="cnv-actions report-actions"> -->
+      <!-- <button type="button" class="cancel-button" (click)="doClose()">Cancel</button> -->
+      <button type="button" class="save-button-large yellow-bg" (click)="doSave()">Add</button>
+    <!-- </div> -->
+
+  </div>
+</div>

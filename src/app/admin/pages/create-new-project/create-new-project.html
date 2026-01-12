@@ -1,0 +1,702 @@
+<div class="cnv-backdrop">
+  <div class="cnv-modal">
+    <button class="cnv-close" (click)="doClose()">✕</button>
+        <div *ngIf="step === 3" class="review-actions">
+    <button class="action-icon"(click)="editVisit()">
+    <img src="assets/images/edit.png" alt="Edit">
+  </button>
+  <!-- <button class="action-icon" (click)="clearVisit()">
+    <img src="assets/images/delete.png" alt="Delete">
+  </button> -->
+    </div>
+
+    <!-- STEP 1 -->
+    <div *ngIf="step === 1" class="cnv-step">
+      <div class="cnv-backdrop">
+      <div class="cnv-modal report-modal">
+      <button class="cnv-close" (click)="doClose()">✕</button>
+      
+      
+      
+      <h2>Create Project</h2>
+
+      <!-- Steps -->
+      <div class="progress-container">
+<div 
+  *ngFor="let stepItem of steps; let i = index"
+  class="progress-segment"
+  [class.active]="i < step">
+</div>
+</div>
+      <div class="report-form-grid">
+
+
+
+
+      
+      <label>Project Name <span class="required">*</span>
+          <input type="text" [(ngModel)]="form.projectName" name="projectName"
+          [ngClass]="{'input-error': submitted && !form.projectName}"
+          />
+      </label>
+
+      <label>Client/Company Name <span class="required">*</span>
+          <input type="text" [(ngModel)]="form.clientOrCompanyName" name="clientOrCompanyName"
+          [ngClass]="{'input-error': submitted && !form.clientOrCompanyName}"
+          />
+      </label>
+
+
+       <label>Project Type <span class="required">*</span>
+          <select [(ngModel)]="form.ProjectType" name="ProjectType"
+          [ngClass]="{'input-error': submitted && !form.ProjectType}"
+          >
+          <option *ngFor="let t of ProjectTypes" [value]="t">{{t}}</option>
+          </select>
+      </label>
+
+      <label>Prime Contact Name
+          <input type="text" [(ngModel)]="form.PrimeContactName" name="PrimeContactName"/>
+      </label>
+      <label>Jop Title
+          <input type="text" [(ngModel)]="form.jopTitle" name="jopTitle"/>
+      </label>
+      <label>phone Number <span class="required">*</span>
+          <input type="text" [(ngModel)]="form.phoneNumber" name="phoneNumber"
+          [ngClass]="{'input-error': submitted && !form.phoneNumber}"
+          />
+      </label>
+      <label>Email Address <span class="required">*</span>
+          <input type="text" [(ngModel)]="form.emailAddress" name="emailAddress"
+          [ngClass]="{'input-error': submitted && !form.emailAddress}"
+          />
+      </label>
+      <label>Email Address
+          <input type="email" [(ngModel)]="form.emailAddress2" name="emailAddress2"/>
+      </label>
+      
+         <label class="full-width">Secondary Contact (Optional)
+      <input type="number" [(ngModel)]="form.secondryContact" name="secondryContact"/>
+      </label>
+    </div>
+    <div class="cnv-actions report-actions">
+       <button type="button" class="cancel-button" (click)="doClose()">Cancel</button>
+       <button type="button" class="save-button-large yellow-bg" (click)="goNext()">Next</button>
+    </div>
+</div>
+</div>
+</div>
+
+    <!-- step 2 -->
+    <div *ngIf="step === 2" class="cnv-step">
+     <div class="cnv-backdrop">
+      <div class="cnv-modal report-modal">
+      <button class="cnv-close" (click)="doClose()">✕</button>      
+      <h2>Create Project</h2>
+             <!-- Steps -->
+      <div class="progress-container">
+<div 
+  *ngFor="let stepItem of steps; let i = index"
+  class="progress-segment"
+  [class.active]="i < step">
+</div>
+</div>
+      <div class="report-form-grid">
+      <!-- <label>contractStartDate
+        <input type="date" [(ngModel)]="form.contractStartDate" name="contractStartDate"/>
+      </label> -->
+
+       <label>Contract Start Date<input type="date" 
+               [(ngModel)]="form.contractStartDate" 
+               name="contractStartDate" 
+               (click)="forceDatePicker($event)" 
+               class="styled-date-input"/> 
+      </label>
+
+
+      <!-- <label>contractEndDate
+        <input type="date" [(ngModel)]="form.contractEndDate" name="contractEndDate"/>
+      </label> -->
+       <label>Contract End Date
+        <input type="date" 
+               [(ngModel)]="form.contractEndDate" 
+               name="contractEndDate" 
+               (click)="forceDatePicker($event)" 
+               class="styled-date-input"/> 
+      </label>
+
+
+      <!-- <label>maintenanceStartDate
+          <input type="date" [(ngModel)]="form.maintenanceStartDate" name="maintenanceStartDate"/>
+      </label> -->
+
+
+
+       <label>Mintenance Start Date
+                <input type="date" 
+               [(ngModel)]="form.maintenanceStartDate" 
+               name="maintenanceStartDate" 
+               (click)="forceDatePicker($event)" 
+               class="styled-date-input"/> 
+      </label>
+
+
+
+      <!-- <label>contractDuration
+        <input type="date" [(ngModel)]="form.contractDuration" name="contractDuration"/>
+      </label>
+       -->
+
+
+       <label>Contract Duration
+                <input type="date" 
+               [(ngModel)]="form.contractDuration" 
+               name="contractDuration" 
+               (click)="forceDatePicker($event)" 
+               class="styled-date-input"/> 
+      </label>
+      
+
+       <label>Contract Type <span class="required">*</span>
+        <select [(ngModel)]="form.contractType" name="contractType"
+        [ngClass]="{'input-error': submitted && !form.contractType}"
+> 
+       <option value="" disabled selected>Select Contract Type</option>
+          <option *ngFor="let p of contractTypes" [value]="p">{{p}}</option>
+        </select>
+      </label>
+
+<label>Payment Terms <span class="required">*</span>
+  <select [(ngModel)]="form.paymentTerms" name="paymentTerms"
+  [ngClass]="{'input-error': submitted && !form.paymentTerms}"
+  > 
+     <option value="" disabled selected>Select Payment Terms</option>
+    <option *ngFor="let p of paymentTerms" [value]="p">{{p}}</option>
+  </select>
+      </label>
+
+
+
+</div> 
+
+<!-- //Image -->
+   <!-- ✅ الزر الجديد لرفع الصور --> 
+    <!-- لاحظ تحت ال div الي بره  -->
+    <div class="upload-file">
+      <label class="label1">Upload Contract PDF</label>
+      <label class="label2">(Required for project creation)</label>
+    <div class="custom-file-upload" (click)="openFilePicker(0)">
+          <i class="pin-icon">
+              <img src="/assets/images/imgIcon.png" alt="">
+          </i>
+          <span class="upload-text">Upload File</span>
+        </div>
+    </div> 
+  <div class="cnv-actions report-actions">
+   <button type="button" class="cancel-button" (click)="goBack()">Back</button>
+   <button type="button" class="save-button-large yellow-bg" (click)="goNext()">Next</button>
+   </div>
+</div>
+    </div>
+    </div>
+    <!-- step 3 -->
+    <div *ngIf="step === 3" class="cnv-step">
+     <div class="cnv-backdrop">
+      <div class="cnv-modal report-modal">
+      <button class="cnv-close" (click)="doClose()">✕</button>      
+      <h2>Create Project</h2>
+             <!-- Steps -->
+      <div class="progress-container">
+<div 
+  *ngFor="let stepItem of steps; let i = index"
+  class="progress-segment"
+  [class.active]="i < step">
+</div>
+</div>
+      <div class="report-form-grid">
+
+      <label>Site Address <span class="required">*</span>
+          <input type="text" [(ngModel)]="form.siteAddress" name="siteAddress"
+          [ngClass]="{'input-error': submitted && !form.siteAddress}"
+          />
+      </label>
+      <label>Google Map Location
+        <input type="text" [(ngModel)]="form.siteAddressGoogleMapLocation" name="siteAddressGoogleMapLocation"/>
+      </label>
+
+      <label>Region
+        <select [(ngModel)]="form.region" name="region"> 
+          <option value="" disabled selected>Select Region</option>
+          <option *ngFor="let p of regions" [value]="p">{{p}}</option>
+        </select>
+      </label>
+
+<label>Google Map Location
+  <input type="text" [(ngModel)]="form.regionGoogleMapLocation" name="regionGoogleMapLocation"/>
+</label>
+
+<label>On-Site Contact (Technician Access)
+  <input type="text" [(ngModel)]="form.onSiteContact" name="onSiteContact"/>
+</label>
+
+<!-- خليتها requird -->
+   <label>Unit Type <span class="required">*</span>
+  <select 
+    [(ngModel)]="form.unitType" 
+    name="unitType" 
+    required
+    #unitTypeRef="ngModel"
+    [ngClass]="{'input-error': submitted && !form.unitType}"
+    >
+      <option value="" disabled>Select Unit Type</option>
+      <option *ngFor="let p of unitTypes" [value]="p">{{p}}</option>
+  </select>
+  <!-- <div *ngIf="showUnitTypeError" class="error-message">
+    Please select a Unit Type before continuing.
+  </div> -->
+</label>
+
+<!-- رسالة الخطأ -->
+
+</div>
+<div class="cnv-actions report-actions">
+ <button type="button" class="cancel-button" (click)="goBack()">Back</button>
+ <button type="button" class="save-button-large yellow-bg" (click)="validateUnitType(unitTypeRef)">Next</button>
+ </div>
+    </div>
+    </div>
+    </div>
+
+    <!-- step 4 -->
+<div *ngIf="step === 4" class="cnv-step">
+<!-- كدا انا هنا هعمل الشروط بتاعتي علي حسب هو اختار اي في ال dropDownList -->
+<!-- طبعا علي حسب ال dropDownList فيها اي هنا  -->
+      <div *ngIf="form.unitType==='Elevators'" class="cnv-step">
+     <div class="cnv-backdrop">
+      <div class="cnv-modal report-modal">
+      <button class="cnv-close" (click)="doClose()">✕</button>      
+      <h2>Create Project</h2>
+             <!-- Steps -->
+      <div class="progress-container">
+<div 
+  *ngFor="let stepItem of steps; let i = index"
+  class="progress-segment"
+  [class.active]="i < step">
+</div>
+</div>
+      <div class="report-form-grid">
+          
+      <label>Number Of Elevators
+          <input type="number" [(ngModel)]="form.numberOfElevators" name="numberOfElevators"/>
+      </label>
+
+    
+       <label>Door Type
+        <select [(ngModel)]="form.doorType" name="doorType"> 
+          <option value="" disabled selected>Select Door Type</option>
+          <option *ngFor="let p of doorTypes" [value]="p">{{p}}</option>
+        </select>
+      </label>
+
+       <label>Type
+        <select [(ngModel)]="form.type" name="type"> 
+          <option value="" disabled selected>Select Type</option>
+          <option *ngFor="let p of types" [value]="p">{{p}}</option>
+        </select>
+      </label>
+
+       <label>Machine Room
+        <select [(ngModel)]="form.machineRoom" name="machineRoom"> 
+          <option value="" disabled selected>(Yes/No)</option>
+          <option *ngFor="let p of machineRooms" [value]="p">{{p}}</option>
+        </select>
+      </label>
+
+
+            
+      <label>Number Of Stops
+          <input type="number" [(ngModel)]="form.numberOfStops" name="numberOfStops"/>
+      </label>
+
+
+       <label>Model/Brand
+        <select [(ngModel)]="form.modelOrBrand" name="modelOrBrand"> 
+          <option value="" disabled selected>Select modelOrBrand</option>
+          <option *ngFor="let p of modelOrBrands" [value]="p">{{p}}</option>
+        </select>
+      </label>
+
+
+            
+      <label>Contract Type
+          <input type="number" [(ngModel)]="form.contractType" name="contractType"/>
+      </label>
+
+
+      <label>Serial Number
+          <input type="number" [(ngModel)]="form.serialNumber" name="serialNumber"/>
+      </label>
+
+        <label class="full-width">Notes
+      <input type="text" [(ngModel)]="form.notes" name="notes" />
+      </label>
+
+      
+      
+    </div>
+    <div class="cnv-actions report-actions">
+     <button type="button" class="cancel-button" (click)="goBack()">Back</button>
+     <button type="button" class="save-button-large yellow-bg" (click)="goNext()">Next</button>
+     </div>
+       </div>
+       </div>
+       </div>
+
+
+
+
+
+<!-- ///////////////////////////////////////////////////////////////// -->
+  <div *ngIf="form.unitType==='Escalators / Moving Walks'" class="cnv-step">
+
+     <div class="cnv-backdrop">
+      <div class="cnv-modal report-modal">
+      <button class="cnv-close" (click)="doClose()">✕</button>      
+      <h2>Create Project</h2>
+             <!-- Steps -->
+      <div class="progress-container">
+<div 
+  *ngFor="let stepItem of steps; let i = index"
+  class="progress-segment"
+  [class.active]="i < step">
+</div>
+</div>
+      <div class="report-form-grid">
+        
+      <label>Number Of Escalators
+          <input type="number" [(ngModel)]="form.numberOfEscalators" name="numberOfEscalators"/>
+      </label>
+
+      <label>Travel Height (m)
+          <input type="number" [(ngModel)]="form.TravelHeight" name="TravelHeight"/>
+      </label>
+
+    
+       <label>Indoor/Outdoor
+        <select [(ngModel)]="form.indoor_outdoor" name="indoor_outdoor"> 
+          <!-- <option value="" disabled selected>Select Door Type</option> -->
+          <option *ngFor="let p of indoor_outdoors" [value]="p">{{p}}</option>
+        </select>
+      </label>
+
+       <label>Handrail Lighting
+        <select [(ngModel)]="form.handrailLighting" name="handrailLighting"> 
+          <option value="" disabled selected>((Yes/No))</option>
+          <option *ngFor="let p of handrailLightings" [value]="p">{{p}}</option>
+        </select>
+      </label>
+
+
+         <label>Brand/Model
+          <input type="number" [(ngModel)]="form.EscalatorsBrandOrModel" name="EscalatorsBrandOrModel"/>
+         </label>
+         <label>Serial Number
+          <input type="number" [(ngModel)]="form.EscalatorsSerialNumber" name="EscalatorsSerialNumber"/>
+      </label>
+      <div class="cnv-actions ">
+<!--         <button type="button" (click)="saveDateForm()">OK</button> -->
+ <!--         <button type="button" class="save-button-large yellow-bg" (click)="saveDateForm()">OK</button> -->
+ 
+ 
+      </div>
+</div>
+<div class="cnv-actions report-actions">
+ <button type="button" class="cancel-button" (click)="goBack()">Back</button>
+ <button type="button" class="save-button-large yellow-bg" (click)="goNext()">Next</button>
+ </div>
+   </div>
+   </div>
+   </div>
+
+
+
+   
+<!-- ///////////////////////////////////////////////////////////////// -->
+  <div *ngIf="form.unitType==='HVAC – Chillers'" class="cnv-step">
+      <div class="cnv-backdrop">
+      <div class="cnv-modal report-modal">
+      <button class="cnv-close" (click)="doClose()">✕</button>      
+      <h2>Create Project</h2>
+             <!-- Steps -->
+      <div class="progress-container">
+<div 
+  *ngFor="let stepItem of steps; let i = index"
+  class="progress-segment"
+  [class.active]="i < step">
+</div>
+</div>
+      <div class="report-form-grid">
+      <label>Number Of Chillers
+          <input type="number" [(ngModel)]="form.numberOfChillers" name="numberOfChillers"/>
+      </label>
+
+
+      <label>Type
+        <select [(ngModel)]="form.Chillerstype" name="Chillerstype"> 
+         <!-- <option value="" disabled selected>Select Door Type</option> -->
+          <option *ngFor="let p of Chillerstypes" [value]="p">{{p}}</option>
+        </select>
+      </label>
+
+
+      <label>Capacity (RT)
+          <input type="number" [(ngModel)]="form.capacity" name="capacity"/>
+      </label>
+
+
+      <label>Brand/Model
+          <input type="number" [(ngModel)]="form.ChillerBrandOrModel" name="ChillerBrandOrModel"/>
+      </label>
+      
+      
+      
+      <label>Cooling Tower Attached
+        <select [(ngModel)]="form.coolingTowerAttached" name="coolingTowerAttached"> 
+          <option value="" disabled selected>((Yes/No))</option>
+          <option *ngFor="let p of coolingTowerAttacheds" [value]="p">{{p}}</option>
+        </select>
+      </label>
+      
+      <label>Serial Number
+          <input type="number" [(ngModel)]="form.ChillerserialNumber" name="ChillerserialNumber"/>
+      </label>
+        <div class="cnv-actions ">
+<!--         <button type="button" (click)="saveDateForm()">OK</button> -->
+ <!--         <button type="button" class="save-button-large yellow-bg" (click)="saveDateForm()">OK</button> -->
+ 
+ 
+ </div>
+</div>
+<div class="cnv-actions report-actions">
+<button type="button" class="cancel-button" (click)="goBack()">Back</button>
+<button type="button" class="save-button-large yellow-bg" (click)="goNext()">Next</button>
+</div>
+   </div>
+   </div>
+   </div>
+
+
+
+
+
+<!-- ///////////////////////////////////////////////////////////////// -->
+  <div *ngIf="form.unitType==='HVAC – Fujitsu VRF Systems'" class="cnv-step">
+      <div class="cnv-backdrop">
+      <div class="cnv-modal report-modal">
+      <button class="cnv-close" (click)="doClose()">✕</button>      
+      <h2>Create Project</h2>
+             <!-- Steps -->
+      <div class="progress-container">
+<div 
+  *ngFor="let stepItem of steps; let i = index"
+  class="progress-segment"
+  [class.active]="i < step">
+</div>
+</div>
+      <div class="report-form-grid">
+   
+      <label>Number Of Outdoor Units
+          <input type="number" [(ngModel)]="form.numberOfOutdoorUnits" name="numberOfOutdoorUnits"/>
+      </label>
+
+
+      <label>Control Type
+        <select [(ngModel)]="form.controlType" name="controlType"> 
+         <!-- <option value="" disabled selected>Select Door Type</option> -->
+          <option *ngFor="let p of controlTypes" [value]="p">{{p}}</option>
+        </select>
+      </label>
+
+
+      <label>Total Indoor Units
+          <input type="number" [(ngModel)]="form.totalIndoorUnits" name="totalIndoorUnits"/>
+      </label>
+
+
+      
+      <label>Installation Type
+        <select [(ngModel)]="form.installationType" name="installationType"> 
+          <!-- <option value="" disabled selected>((Yes/No))</option> -->
+          <option *ngFor="let p of installationTypes" [value]="p">{{p}}</option>
+        </select>
+      </label>
+      
+      <label>Outdoor Unit Capacity(KW)
+          <input type="number" [(ngModel)]="form.outdoorUnitCapacity" name="outdoorUnitCapacity"/>
+      </label>
+      
+      
+      <label>Serial Number
+          <input type="number" [(ngModel)]="form.HVAC_FujitsuserialNumber" name="HVAC_FujitsuserialNumber"/>
+      </label>
+
+      <div class="cnv-actions ">
+<!--         <button type="button" (click)="saveDateForm()">OK</button> -->
+ <!--         <button type="button" class="save-button-large yellow-bg" (click)="saveDateForm()">OK</button> -->
+ 
+ 
+ </div>
+</div>
+<div class="cnv-actions report-actions">
+ <button type="button" class="cancel-button" (click)="goBack()">Back</button>
+ <button type="button" class="save-button-large yellow-bg" (click)="goNext()">Next</button>
+ </div>
+   </div>
+   </div>
+   </div>
+
+
+
+
+
+   
+<!-- ///////////////////////////////////////////////////////////////// -->
+  <div *ngIf="form.unitType==='Fire Systems'" class="cnv-step">
+
+    <div class="cnv-backdrop">
+      <div class="cnv-modal report-modal">
+      <button class="cnv-close" (click)="doClose()">✕</button>      
+      <h2>Create Project</h2>
+             <!-- Steps -->
+      <div class="progress-container">
+<div 
+  *ngFor="let stepItem of steps; let i = index"
+  class="progress-segment"
+  [class.active]="i < step">
+</div>
+</div>
+      <div class="report-form-grid">
+   
+      <label>Fire Alarm Control Panel Brand/Model
+          <input type="number" [(ngModel)]="form.fireAlarmControlPanelBrandOrModel" name="fireAlarmControlPanelBrandOrModel"/>
+      </label>
+
+
+      <label>Hanrail Lighting
+        <select [(ngModel)]="form.hanrailLighting" name="hanrailLighting"> 
+         <option value="" disabled selected>(Yes/No)</option>
+          <option *ngFor="let p of hanrailLightings" [value]="p">{{p}}</option>
+        </select>
+      </label>
+
+
+      <label>Number Of Zones/Loops
+          <input type="number" [(ngModel)]="form.numberOfZonesOrLoops" name="numberOfZonesOrLoops"/>
+      </label>
+
+
+      
+      <label>Fire Pumps Type
+        <select [(ngModel)]="form.firePumpType" name="firePumpType"> 
+          <!-- <option value="" disabled selected>((Yes/No))</option> -->
+          <option *ngFor="let p of firePumpTypes" [value]="p">{{p}}</option>
+        </select>
+      </label>
+      
+      <label>Smoke Detectors / Call Points
+          <input type="number" [(ngModel)]="form.smokeDetectorsCallPoints" name="smokeDetectorsCallPoints"/>
+      </label>
+      
+      
+      <label>Hose Cabinets Extinguishers Count
+          <input type="number" [(ngModel)]="form.hoseCabinets_ExtinguishersCount" name="hoseCabinets_ExtinguishersCount"/>
+      </label>
+
+      <label>Fire System Capacity
+          <input type="number" [(ngModel)]="form.FireSystemCapacity" name="FireSystemCapacity"/>
+      </label>
+      
+      
+       <label>Last Civil Defense Approval Date<input type="date" 
+               [(ngModel)]="form.lastCivilDefenseApprovalDate" 
+               name="lastCivilDefenseApprovalDate" 
+               (click)="forceDatePicker($event)" 
+               class="styled-date-input"/> 
+      </label>
+
+      <div class="cnv-actions ">
+<!--         <button type="button" (click)="saveDateForm()">OK</button> -->
+ <!--         <button type="button" class="save-button-large yellow-bg" (click)="saveDateForm()">OK</button> -->
+ 
+ 
+      </div>
+</div>
+<div class="cnv-actions report-actions">
+ <button type="button" class="cancel-button" (click)="goBack()">Back</button>
+ <button type="button" class="save-button-large yellow-bg" (click)="goNext()">Next</button>
+ </div>
+   </div>
+   </div>
+   </div>
+
+
+
+</div>
+
+    <!-- STEP 5 -->
+<div *ngIf="step === 5" class="cnv-step review-view">
+  <div class="cnv-backdrop">
+      <div class="cnv-modal report-modal">
+      <button class="cnv-close" (click)="doClose()">✕</button>      
+      <h2>Create Project 5</h2>
+             <!-- Steps -->
+      <div class="progress-container">
+      <div 
+      *ngFor="let stepItem of steps; let i = index"
+          class="progress-segment"
+       [class.active]="i < step">
+</div>
+</div>
+
+
+<!-- //Image -->
+   <!-- ✅ الزر الجديد لرفع الصور --> 
+    <!-- لاحظ تحت ال div الي بره  -->
+    <div class="upload-file">
+      <label class="label1">Upload BOQ or Shop Drawings </label>
+      <label class="label2">(Optional but recommended)</label>
+    <div class="custom-file-upload" (click)="openFilePicker(1)">
+          <i class="pin-icon">
+              <img src="/assets/images/imgIcon.png" alt="">
+          </i>
+          <span class="upload-text">Upload File</span>
+        </div>
+    </div> 
+
+
+
+
+
+
+      <div class="report-form-grid">
+     <!-- //المفروض هنا هحدد انهي واحد استدعي الfunction دي عشان هي الي تتحط فيه -->
+      
+         <label class="full-width">Notes_SpecialInstructio
+        <textarea [(ngModel)]="form.Notes_SpecialInstructio" name="Notes_SpecialInstructio" rows="3"></textarea>
+        </label>
+
+       
+        
+      </div>
+      <div class="cnv-actions report-actions">
+       <button type="button" class="cancel-button" (click)="goBack()">Back</button>
+       <button type="button" class="save-button-large yellow-bg" (click)="doSaveFinal()">Create Project</button>
+       </div>
+    </div>
+    </div>
+    </div>
+
+  
+    
+  </div>
+</div>

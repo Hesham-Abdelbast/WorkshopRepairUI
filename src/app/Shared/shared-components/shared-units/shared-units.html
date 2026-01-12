@@ -1,0 +1,76 @@
+<app-shared-page-header [createButtonLabel]="'CREATE UNIT'" [showCreateVisitButton]="role === 'admin'"
+  (createVisit)="openCreateUnit()">
+  <span breadcrumb>CRM &gt; Units</span>
+
+</app-shared-page-header>
+<app-create-new-unit *ngIf="showCreateUnitModal" (close)="closeCreateUnit()" (save)="saveNewReport($event)">
+</app-create-new-unit>
+
+<app-create-service-request *ngIf="showCreateRequestModal" [unit]="selectedUnitForRequest"
+  (close)="closeCreateRequest()" (save)="onRequestCreated($event)">
+</app-create-service-request>
+
+<div class="tabs">
+  <button *ngFor="let tab of ['Lifts', 'Escalators', 'HVAC', 'Accessories']" [class.active]="activeTab === tab"
+    (click)="changeTab(tab)">
+    {{ tab }}
+  </button>
+</div>
+
+<div *ngIf="activeTab === 'Lifts'" class="units-grid">
+  <ng-container *ngFor="let unit of units; let i = index">
+    <div class="unit-card" [ngClass]="{ 'selected': selectedUnitIndex === i }" (click)="toggleDetails(i)">
+      <div class="status-dot" [ngClass]="{ 'red': i % 3 === 0, 'green': i % 3 !== 0 }"></div>
+      <h4>{{ unit.Model }}</h4>
+      <p>{{ unit.Project }}</p>
+      <small style="display:block;font-weight:500;">Serial: {{ unit.Serial || '-' }}</small>
+      <small>Model: {{ unit.Model || '-' }}</small>
+      <small *ngIf="unit.ClientName">Client: {{ unit.ClientName }}</small>
+    </div>
+
+    <!-- ✅ التفاصيل تظهر بعد الصف اللي فيه الكارت -->
+    <ng-container
+      *ngIf="selectedUnitIndex !== null && (i + 1) % cardsPerRow === 0 && selectedUnitIndex >= i - (cardsPerRow - 1) && selectedUnitIndex <= i">
+      <div class="unit-details">
+        <h3 class="unit-title">Unit Data</h3>
+        <div class="details-grid">
+          <!-- ههههههههههههه يعم فل الفل انا هعرض ال index الي هو داس عليه  -->
+          <div><strong>unitName:</strong> {{ units[selectedUnitIndex].unitName }}</div>
+          <div><strong>UnitNumber Type:</strong> {{ units[selectedUnitIndex].UnitNumber }}</div>
+          <div><strong>Project:</strong> {{ units[selectedUnitIndex].Project }}</div>
+          <div><strong>Building:</strong> {{ units[selectedUnitIndex].Building }}</div>
+          <div><strong>Capacity:</strong> {{ units[selectedUnitIndex].Capacity }}</div>
+          <div><strong>Elevator Type:</strong> {{ units[selectedUnitIndex].ElevatorType }}</div>
+          <div><strong>No. People:</strong> {{ units[selectedUnitIndex].NoPeople }}</div>
+          <div><strong>Motor Type:</strong> {{ units[selectedUnitIndex].MotorType }}</div>
+          <div><strong>Speed:</strong> {{ units[selectedUnitIndex].Speed }}</div>
+          <div><strong>ControlSystem:</strong> {{ units[selectedUnitIndex].ControlSystem }}</div>
+          <div><strong>No. Floors:</strong> {{ units[selectedUnitIndex].NoFloors }}</div>
+          <!-- <div><strong>Capacity:</strong> {{ units[selectedUnitIndex].unitName }}</div>
+          <div><strong>Elevator Type:</strong> Passenger</div>
+          <div><strong>Speed:</strong> 1 m/s</div>
+          <div><strong>Drive System:</strong> VVVF</div>
+          <div><strong>Control System:</strong> Simplex</div>
+          <div><strong>Machine Type:</strong> Gearless</div> -->
+        </div>
+
+        <div class="actions" *ngIf="role === 'client'" style="margin-top: 20px;">
+          <button class="save-button-large yellow-bg" (click)="openCreateRequest(units[selectedUnitIndex])">Create
+            Service Request</button>
+        </div>
+
+      </div>
+    </ng-container>
+  </ng-container>
+</div>
+
+<!-- Tabs التانية مؤقتا -->
+<div *ngIf="activeTab === 'Escalators'">
+  <p>Escalators content</p>
+</div>
+<div *ngIf="activeTab === 'HVAC'">
+  <p>HVAC content</p>
+</div>
+<div *ngIf="activeTab === 'Accessories'">
+  <p>Accessories content</p>
+</div>

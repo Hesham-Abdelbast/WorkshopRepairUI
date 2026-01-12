@@ -1,0 +1,228 @@
+<app-shared-page-header
+[showCreateVisitButton]="false" 
+    [showDropdown]="false"
+>
+      <span breadcrumb>LIBRARY &gt; Inventory</span>
+
+</app-shared-page-header>
+
+<!-- Simple Create Inventory Modal -->
+<div class="cnv-backdrop" *ngIf="showCreateModal">
+  <div class="cnv-modal" style="max-width: 600px;">
+    <button class="cnv-close" (click)="closeCreate()">✕</button>
+    <h2>Add Inventory Item</h2>
+    
+    <form #f="ngForm" (ngSubmit)="saveNewInventory(f.value)">
+      <div class="report-form-grid">
+        <label class="full-width">Item Name / Project <span class="required">*</span>
+          <input type="text" name="ProjectName" ngModel required placeholder="e.g. Spare Part A">
+        </label>
+
+        <label>Code (SKU)
+          <input type="text" name="Code" ngModel placeholder="Auto-generated if empty">
+        </label>
+
+        <label>Unit Type
+          <input type="text" name="UnitType" ngModel placeholder="e.g. HVAC">
+        </label>
+
+        <label>Location
+          <input type="text" name="Location" ngModel placeholder="e.g. Warehouse 1">
+        </label>
+
+        <label>Quantity
+          <input type="number" name="QtyOnHand" ngModel placeholder="0">
+        </label>
+
+        <label>Min Quantity
+          <input type="number" name="MinQty" ngModel placeholder="0">
+        </label>
+
+        <label>Unit Cost ($)
+          <input type="number" name="UnitCost" ngModel placeholder="0.00">
+        </label>
+
+        <label>Status
+          <select name="Status" ngModel>
+            <option value="In-Stock">In-Stock</option>
+            <option value="Low Stock">Low Stock</option>
+            <option value="Out of Stock">Out of Stock</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="cnv-actions report-actions" style="margin-top: 20px;">
+        <button type="button" class="cancel-button" (click)="closeCreate()">Cancel</button>
+        <button type="submit" class="save-button-large yellow-bg" [disabled]="!f.valid">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Details Panel Sidebar -->
+<div class="details-backdrop" *ngIf="showDetails" (click)="closeDetails()">
+  <div class="details-panel" (click)="$event.stopPropagation()">
+    <div class="details-header">
+      <h2>Item Details</h2>
+      <button class="close-btn" (click)="closeDetails()">×</button>
+    </div>
+    <div class="details-body" *ngIf="selectedTask">
+      <div class="detail-row">
+        <label>Code</label>
+        <input type="text" [(ngModel)]="selectedTask.Code" disabled>
+      </div>
+      <div class="detail-row">
+        <label>Item Name / Project</label>
+        <input type="text" [(ngModel)]="selectedTask.ProjectName">
+      </div>
+      <div class="detail-row">
+        <label>Unit Type</label>
+        <input type="text" [(ngModel)]="selectedTask.UnitType">
+      </div>
+      <div class="detail-row">
+        <label>Location</label>
+        <input type="text" [(ngModel)]="selectedTask.Location">
+      </div>
+      <div class="detail-row">
+        <label>Status</label>
+        <select [(ngModel)]="selectedTask.Priority">
+          <option value="In-Stock">In-Stock</option>
+          <option value="Low Stock">Low Stock</option>
+          <option value="Out of Stock">Out of Stock</option>
+          <option value="Critical">Critical</option>
+          <option value="Hight">High</option>
+        </select>
+      </div>
+      <div class="detail-row">
+        <label>Unit Cost ($)</label>
+        <input type="text" [(ngModel)]="selectedTask.SuggestedRepair">
+      </div>
+      <div class="detail-row">
+        <label>Last User</label>
+        <input type="text" [(ngModel)]="selectedTask.TechnicalName">
+      </div>
+      <div class="detail-row">
+        <label>Issue Date</label>
+        <input type="text" [(ngModel)]="selectedTask.IssueDescription">
+      </div>
+    </div>
+    <div class="details-footer">
+      <button class="btn-cancel" (click)="closeDetails()">Cancel</button>
+      <button class="btn-save" (click)="updateTask(selectedTask)">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<div class="task-list">
+ 
+
+  <div class="tab-content">
+   
+      <!-- task-toolbar -->
+      <div class="task-toolbar">
+  <!-- Left side: actions -->
+  <div class="toolbar-left">
+
+    <button class="icon-btn" (click)="openCreate()">+</button>
+    <button class="icon-btn">
+      <img src="/assets/images/Vector3.png" alt="">
+    </button> <!-- هنا تحط أيقونة الفلتر -->
+    <button class="icon-btn">⇅</button> <!-- هنا أيقونة sort -->
+  </div>
+
+  <!-- Right side: search -->
+  <div class="toolbar-right">
+    <div class="search-input">
+      <!-- <span class="search-icon">🔍</span> -->
+       <button>
+         <img class="search-icon" src="/assets/images/search.png" alt="">
+       </button>
+      <input type="text" class="forSearch"  placeholder="Search" />
+
+    </div>
+  </div>
+</div>
+
+<!-- Filters section under toolbar -->
+<div class="task-filters">
+  <select class="dropdown faded">
+    <option >Project</option>
+    <option >Personal</option>
+    <option >Work</option>
+  </select>
+  
+  <input type="date" class="date-picker faded" />
+
+</div>
+
+      <table>
+        <thead>
+          <tr>
+             <th>
+<input type="checkbox" [(ngModel)]="allSelected" (change)="toggleAll()" />             </th>
+            <th class="faded">Code</th>
+            <th class="faded">Part Name/Description</th>
+            <th class="faded">Unit Type</th>
+            <th class="faded">Current Stack Auntity</th>
+            <th class="faded">Location</th>
+            <th class="faded">Supplier/Vendor</th>
+            <th class="faded">Last User/Issued Date </th>
+            <th class="faded">Unit Cost</th>
+            <th class="faded">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- <tr *ngFor="let task of pagedTasks; let i = index">
+             <td>
+        <input type="checkbox" [(ngModel)]="task.selected" (change)="updateAllSelected()"/>
+      </td>
+            <td class="faded">{{task.Code}}</td>
+            <td class="faded">{{task.ProjectName}}</td>
+            <td class="faded">{{task.TechnicalName}}</td>
+            <td class="faded">{{task.UnitType}}</td>
+            <td class="faded">{{task.Location}}</td>
+            <td class="faded">{{task.IssueDescription}}</td>
+            <td class="faded">{{task.SuggestedRepair}}</td>
+              <td>
+              <span [ngClass]="getPriorityClass(i)" class="priority-pill">
+             {{ task.Priority }}
+              </span>
+              </td>
+
+            <td ><a class="update-link" href="#">Update</a></td>
+          </tr> -->
+      
+      <tr *ngFor="let task of pagedTasks; let i = index" (click)="openDetails(task)">
+  <td data-label="Select" (click)="$event.stopPropagation()">
+    <input type="checkbox" [(ngModel)]="task.selected" (change)="updateAllSelected()"/>
+  </td>
+  <td class="faded" data-label="Code">{{task.Code}}</td>
+  <td class="faded" data-label="Project Name">{{task.ProjectName}}</td>
+  <td class="faded" data-label="Unit Type">{{task.UnitType}}</td>
+  <td data-label="Priority">
+    <span [ngClass]="getPriorityClass(i)" class="priority-pill">
+      {{ task.Priority }}
+    </span>
+  </td>
+  <td class="faded" data-label="Location">{{task.Location}}</td>
+  <td class="faded" data-label="Technical Name">{{task.TechnicalName}}</td>
+  <td class="faded" data-label="Issue Description">{{task.IssueDescription}}</td>
+  <td class="faded" data-label="Suggested Repair">{{task.SuggestedRepair}}</td>
+  <td data-label="Action"><a class="update-link" (click)="$event.stopPropagation(); openDetails(task)">Update</a></td>
+</tr>
+
+        </tbody>
+      </table>
+
+      <!-- Pagination -->
+      <div class="pagination" *ngIf="totalPages > 1">
+        <button class="page-btn" [disabled]="page === 1" (click)="setPage(page-1)">&lt;</button>
+
+        <ng-container *ngFor="let p of visiblePages">
+          <button class="page-btn" [class.active]="p === page" (click)="setPage(p)">{{p}}</button>
+        </ng-container>
+
+        <button class="page-btn" [disabled]="page === totalPages" (click)="setPage(page+1)">&gt;</button>
+      </div>    
+  </div>
+</div>

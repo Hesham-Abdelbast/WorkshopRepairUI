@@ -1,0 +1,87 @@
+<app-shared-page-header
+ [createButtonLabel]="'CREATE CONTRACT'" 
+ [showCreateVisitButton]="role === 'admin' || role === 'manager'"
+ (createVisit)="openCreate()"
+>
+  <span breadcrumb>CRM &gt; Contracts</span>
+</app-shared-page-header>
+
+<div class="task-list">
+  <div class="page-tabs">
+    <button class="tab-btn" [class.active]="activeTab === 'list'" (click)="activeTab = 'list'">Contracts List</button>
+  </div>
+
+  <div class="tab-content">
+    <ng-container *ngIf="activeTab === 'list'">
+      <div class="task-toolbar">
+        <div class="toolbar-left">
+          <button class="icon-btn">+</button>
+          <button class="icon-btn">
+            <img src="/assets/images/Vector3.png" alt="">
+          </button>
+          <button class="icon-btn">⇅</button>
+        </div>
+
+        <div class="toolbar-right">
+          <div class="search-input">
+            <button><img class="search-icon" src="/assets/images/search.png" alt=""></button>
+            <input type="text" class="forSearch" [(ngModel)]="searchText" placeholder="Search Contracts" />
+          </div>
+        </div>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+             <th>
+               <input 
+               type="checkbox" 
+               [checked]="allSelected" 
+               (change)="allSelected = $event.target.checked; toggleAll()" 
+               (click)="$event.stopPropagation()"/>
+               </th>
+            <th class="faded">Title</th>
+            <th class="faded">Client</th>
+            <th class="faded">Type</th>
+            <th class="faded">Status</th>
+            <th class="faded">Value</th>
+            <th class="faded">Start Date</th>
+            <th class="faded">End Date</th>
+            <th class="faded">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let contract of contracts">
+            <td data-label="Select">
+                <input 
+                type="checkbox" 
+                [(ngModel)]="contract.selected" 
+                (change)="updateAllSelected()" 
+                (click)="$event.stopPropagation()"
+                 />
+            </td>
+            <td class="faded" data-label="Title">{{contract.Title}}</td>
+            <td class="faded" data-label="Client">{{contract.Client}}</td>
+            <td class="faded" data-label="Type">{{contract.Type}}</td>
+            <td class="faded" data-label="Status">
+                <span [ngClass]="{'approved-status': contract.Status === 'Approved', 'rejected-status': contract.Status === 'Rejected', 'pending-status': contract.Status !== 'Approved' && contract.Status !== 'Rejected'}">
+                    {{contract.Status}}
+                </span>
+            </td>
+            <td class="faded" data-label="Value">{{contract.Value | currency}}</td>
+            <td class="faded" data-label="Start Date">{{contract.StartDate}}</td>
+            <td class="faded" data-label="End Date">{{contract.EndDate}}</td>
+            <td (click)="$event.stopPropagation()">
+                <select class="action-row" (change)="onSelectChange(contract, $event)">
+                <option value="">Actions</option>
+                <option value="delete" *ngIf="role === 'admin'">Delete</option>
+                <option value="approve" *ngIf="(role === 'admin' || role === 'manager') && contract.Status !== 'Approved'">Approve</option>
+                <option value="reject" *ngIf="(role === 'admin' || role === 'manager') && contract.Status !== 'Rejected'">Reject</option>
+                </select>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </ng-container>
+  </div>
+</div>
