@@ -1,7 +1,6 @@
-import { NgIf, NgFor, CommonModule } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
-import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SharedPageHeader } from '../../../Shared/shared-layout/shared-page-header/shared-page-header';
 import { SharedServiceRequestes } from '../../../Shared/shared-components/shared-service-requestes/shared-service-requestes';
@@ -22,7 +21,7 @@ interface MaintenanceReport {
 }
 @Component({
   selector: 'app-service-requests',
-  imports: [NgIf, FormsModule, NgFor, CommonModule, SharedPageHeader, CreateServiceRequest, SharedServiceRequestes],
+  imports: [FormsModule, CommonModule, SharedPageHeader, CreateServiceRequest, SharedServiceRequestes],
   templateUrl: './service-requests.html',
   standalone: true,
   styleUrl: './service-requests.css'
