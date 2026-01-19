@@ -40,10 +40,13 @@
           />
       </label>
 
-      <label>Client/Company Name <span class="required">*</span>
-          <input type="text" [(ngModel)]="form.clientOrCompanyName" name="clientOrCompanyName"
-          [ngClass]="{'input-error': submitted && !form.clientOrCompanyName}"
-          />
+      <label>Client/Company <span class="required">*</span>
+        <select [(ngModel)]="selectedClientId" name="clientId"
+                [ngClass]="{'input-error': submitted && !selectedClientId}"
+                (change)="onClientChange()">
+          <option [ngValue]="null" disabled>Select Client</option>
+          <option *ngFor="let c of clients" [ngValue]="c.id">{{c.name}}</option>
+        </select>
       </label>
 
 
@@ -216,10 +219,18 @@
       <div class="report-form-grid">
 
       <label>Site Address <span class="required">*</span>
-          <input type="text" [(ngModel)]="form.siteAddress" name="siteAddress"
-          [ngClass]="{'input-error': submitted && !form.siteAddress}"
-          />
+        <input type="text" [(ngModel)]="form.siteAddress" name="siteAddress"
+        [ngClass]="{'input-error': submitted && !form.siteAddress}"/>
       </label>
+      <label class="full-width">
+        <input id="gmap-autocomplete" type="text" [(ngModel)]="addressQuery" (input)="onAddressInput()" placeholder="Search address"/>
+      </label>
+      <div *ngIf="showAddressDropdown && addressSuggestions.length">
+        <div *ngFor="let s of addressSuggestions" (click)="selectSuggestion(s)">
+          {{ s.display_name }}
+        </div>
+      </div>
+      <div id="cnv-map" style="height: 240px; width: 100%;"></div>
       <label>Google Map Location
         <input type="text" [(ngModel)]="form.siteAddressGoogleMapLocation" name="siteAddressGoogleMapLocation"/>
       </label>
@@ -238,6 +249,12 @@
 <label>On-Site Contact (Technician Access)
   <input type="text" [(ngModel)]="form.onSiteContact" name="onSiteContact"/>
 </label>
+
+      <label class="full-width">Units For This Project
+        <select multiple [(ngModel)]="selectedUnitIds" name="unitIds">
+          <option *ngFor="let u of units" [ngValue]="u.id">{{ u.label }}</option>
+        </select>
+      </label>
 
 <!-- خليتها requird -->
    <label>Unit Type <span class="required">*</span>

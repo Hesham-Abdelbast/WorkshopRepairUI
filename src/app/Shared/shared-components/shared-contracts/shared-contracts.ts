@@ -3,6 +3,7 @@ import { CommonModule, NgFor, NgIf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ResourceService } from '../../../core/resource.service';
 import { SharedPageHeader } from '../../shared-layout/shared-page-header/shared-page-header';
+import { CreateNewContact } from "../../../admin/pages/create-new-contact/create-new-contact";
 
 interface Contract {
   id: number;
@@ -15,12 +16,13 @@ interface Contract {
   EndDate: string;
   Client: string;
   Terms?: string;
+  raw?: any;
 }
 
 @Component({
   selector: 'app-shared-contracts',
   standalone: true,
-  imports: [CommonModule, FormsModule, NgIf, NgFor, SharedPageHeader],
+  imports: [CommonModule, FormsModule, NgIf, NgFor, SharedPageHeader, CreateNewContact],
   templateUrl: './shared-contracts.html',
   styleUrl: './shared-contracts.css'
 })
@@ -31,7 +33,17 @@ export class SharedContracts implements OnInit {
   activeTab: 'list' | 'map' = 'list';
   searchText: string = '';
   allSelected = false;
-
+  totalCount = 0;
+  approvedCount = 0;
+  rejectedCount = 0;
+  activeCount = 0;
+  totalValue = 0;
+  showDetails = false;
+  selected: any = null;
+  showFilterBuilder = false;
+  newFilter = { field: '', value: '' };
+  activeFilters: { field: string; value: string }[] = [];
+  selectedCount = 0;
   // Pagination
   page = 1;
   pageSize = 10;
@@ -58,8 +70,14 @@ export class SharedContracts implements OnInit {
           StartDate: c.startDate ? new Date(c.startDate).toLocaleDateString() : '',
           EndDate: c.endDate ? new Date(c.endDate).toLocaleDateString() : '',
           Client: c.client?.name || 'Unknown Client',
-          Terms: c.terms
+          Terms: c.terms,
+          raw: c
         }));
+        this.totalCount = items.length;
+        this.approvedCount = items.filter(c => c.status === 'Approved').length;
+        this.rejectedCount = items.filter(c => c.status === 'Rejected').length;
+        this.activeCount = items.filter(c => (c.status || '').toLowerCase() === 'active').length;
+        this.totalValue = items.reduce((sum, c) => sum + (Number(c.value) || 0), 0);
       },
       error: (err) => {
         console.error('Failed to load contracts', err);
@@ -69,7 +87,9 @@ export class SharedContracts implements OnInit {
 
   onSelectChange(contract: Contract, event: any) {
     const action = event.target.value;
-    if (action === 'delete') {
+    if (action === 'view') {
+      this.openDetails(contract);
+    } else if (action === 'delete') {
       if(confirm('Are you sure you want to delete this contract?')) {
         this.resourceService.delete('Contracts', contract.id).subscribe(() => this.loadContracts());
       }
@@ -77,11 +97,13 @@ export class SharedContracts implements OnInit {
         this.resourceService.update('Contracts', contract.id + '/approve', {}).subscribe(() => {
             contract.Status = 'Approved';
             alert('Contract Approved');
+            this.loadContracts();
         });
     } else if (action === 'reject') {
         this.resourceService.update('Contracts', contract.id + '/reject', {}).subscribe(() => {
             contract.Status = 'Rejected';
             alert('Contract Rejected');
+            this.loadContracts();
         });
     }
     event.target.value = '';
@@ -89,14 +111,141 @@ export class SharedContracts implements OnInit {
 
   toggleAll() {
     this.contracts.forEach(c => c.selected = this.allSelected);
+    this.selectedCount = this.contracts.filter(c => c.selected).length;
   }
 
   updateAllSelected() {
     this.allSelected = this.contracts.every(c => c.selected);
+    this.selectedCount = this.contracts.filter(c => c.selected).length;
   }
 
-  openCreate() {
-      // Implement create modal if needed
-      console.log('Open Create Contract Modal');
+  openDetails(item: any) {
+    this.selected = item;
+    this.showDetails = true;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    document.body.style.overflow = 'hidden';
+    if (item?.id) {
+      this.resourceService.getById('Contracts', item.id).subscribe({
+        next: (c: any) => {
+          const mapped: Contract = {
+            id: c.id,
+            selected: false,
+            Title: c.title || 'Untitled Contract',
+            Type: c.type || 'Standard',
+            Status: c.status || 'Draft',
+            Value: c.value || 0,
+            StartDate: c.startDate ? new Date(c.startDate).toLocaleDateString() : '',
+            EndDate: c.endDate ? new Date(c.endDate).toLocaleDateString() : '',
+            Client: c.client?.name || 'Unknown Client',
+            Terms: c.terms,
+            raw: c
+          };
+          this.selected = mapped;
+        }
+      });
+    }
   }
+  closeDetails() {
+    this.selected = null;
+    this.showDetails = false;
+    document.body.style.overflow = 'auto';
+  }
+  get filteredContracts(): Contract[] {
+    let result = this.contracts;
+    if (this.activeFilters.length) {
+      result = result.filter(c =>
+        this.activeFilters.every(f => {
+          const v = (c as any)[f.field];
+          if (v == null) return false;
+          return String(v).toLowerCase() === String(f.value).toLowerCase();
+        })
+      );
+    }
+    if (this.searchText.trim() !== '') {
+      const search = this.searchText.toLowerCase();
+      result = result.filter(c =>
+        (c.Title?.toLowerCase().includes(search)) ||
+        (c.Client?.toLowerCase().includes(search)) ||
+        (c.Type?.toLowerCase().includes(search)) ||
+        (c.Status?.toLowerCase().includes(search))
+      );
+    }
+    return result;
+  }
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.filteredContracts.length / this.pageSize));
+  }
+  get pagedContracts(): Contract[] {
+    const start = (this.page - 1) * this.pageSize;
+    return this.filteredContracts.slice(start, start + this.pageSize);
+  }
+  get visiblePages(): number[] {
+    const pages: number[] = [];
+    const maxButtons = 5;
+    if (this.totalPages <= maxButtons) {
+      for (let i = 1; i <= this.totalPages; i++) pages.push(i);
+    } else {
+      let start = this.page - Math.floor(maxButtons / 2);
+      let end = this.page + Math.floor(maxButtons / 2);
+      if (start < 1) {
+        start = 1;
+        end = maxButtons;
+      }
+      if (end > this.totalPages) {
+        end = this.totalPages;
+        start = this.totalPages - maxButtons + 1;
+      }
+      for (let i = start; i <= end; i++) pages.push(i);
+    }
+    return pages;
+  }
+  setPage(p: number) {
+    if (p >= 1 && p <= this.totalPages) this.page = p;
+  }
+  toggleFilterBuilder() {
+    this.showFilterBuilder = !this.showFilterBuilder;
+    this.newFilter = { field: '', value: '' };
+  }
+  getFilterValues(field: string): string[] {
+    if (!field) return [];
+    const values = this.contracts
+      .map(c => (c as any)[field])
+      .filter(v => v !== undefined && v !== null)
+      .map(v => String(v));
+    return Array.from(new Set(values));
+  }
+  applyFilter() {
+    if (!this.newFilter.field || !this.newFilter.value) return;
+    this.activeFilters.push({ ...this.newFilter });
+    this.newFilter = { field: '', value: '' };
+    this.showFilterBuilder = false;
+    this.page = 1;
+  }
+  removeFilter(idx: number) {
+    this.activeFilters.splice(idx, 1);
+    if (this.page > this.totalPages) this.page = this.totalPages;
+  }
+  clearAllFilters() {
+    this.activeFilters = [];
+    this.page = 1;
+  }
+  
+//create new visit modal logic
+
+ showCreate = false;
+
+  openCreate() {
+    this.showCreate = true;
+    // ارفع الصفحة لفوق عشان يبان المودال فوق الكل
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+      document.body.style.overflow = 'hidden'; // يمنع scroll الصفحة
+
+  }
+  closeCreate() {
+    this.showCreate = false;
+      document.body.style.overflow = 'auto'; // يرجع scroll الصفحة
+
+  }
+ addTask(newVisit: any) {}
+
 }

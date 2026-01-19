@@ -6,6 +6,8 @@ import { CreateNewProject } from '../../../admin/pages/create-new-project/create
 import { ProjectDetails } from '../../../admin/pages/project-details/project-details';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ResourceService } from '../../../core/resource.service';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
 interface Task {
   id?: number; // Added id for backend operations
@@ -56,24 +58,54 @@ export class SharedProject {
   loadTasks() {
     const params: Record<string, string> = {};
     if (this.role) params['role'] = this.role;
-    this.resourceService.getAll('Projects', params).subscribe({
-      next: (items: any[]) => {
-        this.tasks = items.map(t => ({
-          id: t.id,
-          selected: false,
-          Project: t.name || 'Unknown Project',
-          Client: t.client?.name || '',
-          siteAddress: t.location || '',
-          Scopes: 0, // Not in backend entity yet
-          Units: 0,
-          OpenTasks: 0,
-          BookedValue: t.budget || 0,
-          Status: t.status
-        }));
+    forkJoin({
+      projects: this.resourceService.getAll('Projects', params).pipe(catchError(() => of([]))),
+      tasks: this.resourceService.getAll('Tasks').pipe(catchError(() => of([]))),
+      contracts: this.resourceService.getAll('Contracts').pipe(catchError(() => of([])))
+    }).subscribe({
+      next: ({ projects, tasks, contracts }) => {
+        const unitRequests = projects.map((p: any) => this.resourceService.getAll('Units', { projectId: p.id }));
+        forkJoin(unitRequests).subscribe({
+          next: (unitsPerProject: any[][]) => {
+            this.tasks = projects.map((p: any, idx: number) => {
+              const units = unitsPerProject[idx] || [];
+              const unitIds = units.map(u => u.id);
+              const openTasks = tasks.filter((t: any) => unitIds.includes(t.unitId) && t.status !== 'Completed').length;
+              const bookedValue = contracts
+                .filter((c: any) => unitIds.includes(c.unitId))
+                .reduce((sum: number, c: any) => sum + (Number(c.value) || 0), 0);
+              return {
+                id: p.id,
+                selected: false,
+                Project: p.name || 'Unknown Project',
+                Client: p.client?.name || '',
+                siteAddress: p.location || '',
+                Scopes: 0,
+                Units: units.length,
+                OpenTasks: openTasks,
+                BookedValue: bookedValue || p.budget || 0,
+                Status: p.status
+              } as Task;
+            });
+          },
+          error: () => {
+            this.tasks = projects.map((p: any) => ({
+              id: p.id,
+              selected: false,
+              Project: p.name || 'Unknown Project',
+              Client: p.client?.name || '',
+              siteAddress: p.location || '',
+              Scopes: 0,
+              Units: 0,
+              OpenTasks: 0,
+              BookedValue: p.budget || 0,
+              Status: p.status
+            }));
+          }
+        });
       },
       error: (err) => {
-        console.error('Failed to load projects', err);
-        // Fallback to mock data if backend fails
+        console.error('Failed to load data', err);
         this.loadMockTasks();
       }
     });
@@ -495,42 +527,80 @@ export class SharedProject {
       status: 'Active',
       startDate: newVisit.contractStartDate ? new Date(newVisit.contractStartDate).toISOString() : new Date().toISOString(),
       endDate: newVisit.contractEndDate ? new Date(newVisit.contractEndDate).toISOString() : null,
-      budget: Number((newVisit.bookedValue ?? 0)) || 0,
+      budget: Number(newVisit.bookedValue ?? 0) || 0,
       location: newVisit.siteAddress || '',
-      clientId: newVisit.clientId ? Number(newVisit.clientId) : null
+      clientId: newVisit.clientId ? Number(newVisit.clientId) : null,
+      unitIds: Array.isArray(newVisit.unitIds) ? newVisit.unitIds.map((x: any) => Number(x)) : [],
+      projectType: newVisit.ProjectType || null,
+      primeContactName: newVisit.PrimeContactName || null,
+      jobTitle: newVisit.jopTitle || null,
+      phoneNumber: newVisit.phoneNumber || null,
+      emailAddress: newVisit.emailAddress || null,
+      emailAddress2: newVisit.emailAddress2 || null,
+      secondaryContact: newVisit.secondryContact || null,
+      contractStartDate: newVisit.contractStartDate ? new Date(newVisit.contractStartDate).toISOString() : null,
+      contractEndDate: newVisit.contractEndDate ? new Date(newVisit.contractEndDate).toISOString() : null,
+      maintenanceStartDate: newVisit.maintenanceStartDate ? new Date(newVisit.maintenanceStartDate).toISOString() : null,
+      contractDuration: newVisit.contractDuration || null,
+      contractType: newVisit.contractType || null,
+      paymentTerms: newVisit.paymentTerms || null,
+      files: JSON.stringify(newVisit.files || []),
+      boqShopDrawing: JSON.stringify(newVisit.BOQ_ShopDrawing || []),
+      siteAddress: newVisit.siteAddress || '',
+      siteLat: newVisit.siteLat !== '' && newVisit.siteLat !== null ? Number(newVisit.siteLat) : null,
+      siteLng: newVisit.siteLng !== '' && newVisit.siteLng !== null ? Number(newVisit.siteLng) : null,
+      siteAddressGoogleMapLocation: newVisit.siteAddressGoogleMapLocation || (newVisit.siteLat && newVisit.siteLng ? `${newVisit.siteLat},${newVisit.siteLng}` : null),
+      region: newVisit.region || null,
+      regionGoogleMapLocation: newVisit.regionGoogleMapLocation || null,
+      onSiteContact: newVisit.onSiteContact || null,
+      unitType: newVisit.unitType || null,
+      notesSpecialInstruction: newVisit.Notes_SpecialInstructio || '',
+      numberOfElevators: newVisit.numberOfElevators ? Number(newVisit.numberOfElevators) : null,
+      doorType: newVisit.doorType || null,
+      elevatorType: newVisit.type || null,
+      machineRoom: newVisit.machineRoom || null,
+      numberOfStops: newVisit.numberOfStops ? Number(newVisit.numberOfStops) : null,
+      modelOrBrand: newVisit.modelOrBrand || null,
+      controllerType: newVisit.controllerType || null,
+      serialNumber: newVisit.serialNumber || null,
+      elevatorNotes: newVisit.notes || null,
+      numberOfEscalators: newVisit.numberOfEscalators ? Number(newVisit.numberOfEscalators) : null,
+      travelHeight: newVisit.TravelHeight ? Number(newVisit.TravelHeight) : null,
+      indoorOutdoor: newVisit.indoor_outdoor || null,
+      handrailLighting: newVisit.handrailLighting || null,
+      escalatorsBrandOrModel: newVisit.EscalatorsBrandOrModel || null,
+      escalatorsSerialNumber: newVisit.EscalatorsSerialNumber || null,
+      numberOfChillers: newVisit.numberOfChillers ? Number(newVisit.numberOfChillers) : null,
+      chillersType: newVisit.Chillerstype || null,
+      capacity: newVisit.capacity || null,
+      chillerBrandOrModel: newVisit.ChillerBrandOrModel || null,
+      coolingTowerAttached: newVisit.coolingTowerAttached || null,
+      chillerSerialNumber: newVisit.ChillerserialNumber || null,
+      numberOfOutdoorUnits: newVisit.numberOfOutdoorUnits ? Number(newVisit.numberOfOutdoorUnits) : null,
+      controlType: newVisit.controlType || null,
+      totalIndoorUnits: newVisit.totalIndoorUnits ? Number(newVisit.totalIndoorUnits) : null,
+      installationType: newVisit.installationType || null,
+      outdoorUnitCapacity: newVisit.outdoorUnitCapacity || null,
+      hvacFujitsuSerialNumber: newVisit.HVAC_FujitsuserialNumber || null,
+      fireAlarmControlPanelBrandOrModel: newVisit.fireAlarmControlPanelBrandOrModel || null,
+      hanrailLighting: newVisit.hanrailLighting || null,
+      numberOfZonesOrLoops: newVisit.numberOfZonesOrLoops ? Number(newVisit.numberOfZonesOrLoops) : null,
+      firePumpType: newVisit.firePumpType || null,
+      smokeDetectorsCallPoints: newVisit.smokeDetectorsCallPoints || null,
+      hoseCabinetsExtinguishersCount: newVisit.hoseCabinets_ExtinguishersCount || null,
+      fireSystemCapacity: newVisit.FireSystemCapacity || null,
+      lastCivilDefenseApprovalDate: newVisit.lastCivilDefenseApprovalDate ? new Date(newVisit.lastCivilDefenseApprovalDate).toISOString() : null
     };
 
     this.resourceService.create('Projects', payload).subscribe({
-      next: (created) => {
-        const newTask: Task = {
-          selected: false,
-          Project: created.name || payload.name,
-          Client: created.client?.name || 'Unknown Client',
-          siteAddress: created.location || payload.location,
-          Scopes: 0,
-          Units: 0,
-          OpenTasks: 0,
-          BookedValue: created.budget ?? payload.budget
-        };
-        this.tasks.unshift(newTask);
+      next: () => {
+        this.loadTasks();
         this.page = 1;
         this.showCreate = false;
         document.body.style.overflow = 'auto';
       },
-      error: (err) => {
-        console.error('Failed to create project', err);
-        // Fallback
-        const newTask: Task = {
-          selected: false,
-          Project: payload.name,
-          Client: 'Unknown Client',
-          siteAddress: payload.location,
-          Scopes: 0,
-          Units: 0,
-          OpenTasks: 0,
-          BookedValue: payload.budget
-        };
-        this.tasks.unshift(newTask);
+      error: () => {
+        this.loadTasks();
         this.page = 1;
         this.showCreate = false;
         document.body.style.overflow = 'auto';

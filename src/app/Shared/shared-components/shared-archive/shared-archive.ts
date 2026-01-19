@@ -288,6 +288,26 @@ export class SharedArchive {
     this.selectedReport = report;
     this.showDetails = true;
     document.body.style.overflow = 'hidden';
+    if (report?.id) {
+      this.resource.getById('Reports', report.id).subscribe({
+        next: (r: any) => {
+          const mapped: MaintenanceReport = {
+            id: r.id,
+            selected: false,
+            reportId: r.reportId || `MR-${r.id}`,
+            date: r.date ? new Date(r.date).toLocaleDateString() : report.date,
+            maintenanceVisits: Array.isArray(r.maintenanceVisits) ? r.maintenanceVisits : (typeof r.maintenanceVisits === 'string' && r.maintenanceVisits ? JSON.parse(r.maintenanceVisits) : (report.maintenanceVisits || [])),
+            workPerformed: r.workPerformed || report.workPerformed,
+            technician: r.technicianName || report.technician,
+            comments: r.comments || report.comments,
+            systemId: r.unit?.name || r.unitId || report.systemId,
+            photos: Array.isArray(r.photos) ? r.photos : (typeof r.photos === 'string' && r.photos ? r.photos.split(',') : (report.photos || [])),
+            Status: r.status || report.Status
+          };
+          this.selectedReport = mapped;
+        }
+      });
+    }
   }
   closeDetails() {
     this.selectedReport = null;

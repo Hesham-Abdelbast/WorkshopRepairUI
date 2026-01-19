@@ -295,15 +295,38 @@ export class SharedSuggestedRepairs {
 
   // ---------------- details panel ----------------
   openDetails(task: MaintenanceReport) {
-    //بحيط القيمه في ال main image عشان ال Details يشتغل صح
     if (task.images && task.images.length > 0) {
       this.mainImage = task.images[0];
     }
     this.selectedTask = task;
     this.showDetails = true;
-    // scroll to top so details visible (optional)
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    document.body.style.overflow = 'hidden'; // يمنع scroll الصفحة
+    document.body.style.overflow = 'hidden';
+    const code = String(task.Code || '').replace('#', '');
+    if (code) {
+      this.resource.getById('SuggestedRepairs', code).subscribe({
+        next: (t: any) => {
+          const mapped: MaintenanceReport = {
+            selected: false,
+            Code: t.id ? `#${t.id}` : task.Code,
+            ProjectName: t.taskItem?.unit?.client?.name || t.projectName || task.ProjectName,
+            TechnicalName: t.technicianName || t.taskItem?.assigneeUser?.fullName || task.TechnicalName,
+            UnitType: t.taskItem?.unit?.model || t.unitType || task.UnitType,
+            Location: t.taskItem?.unit?.client?.address || t.location || task.Location,
+            IssueDescription: t.description || task.IssueDescription,
+            SuggestedRepair: t.title || task.SuggestedRepair,
+            Score: t.cost ?? task.Score ?? 0,
+            Priority: t.taskItem?.priority || task.Priority || 'Medium',
+            Status: t.status || task.Status || 'Pending',
+            images: Array.isArray(t.photos) ? t.photos : (typeof t.photos === 'string' && t.photos ? t.photos.split(',') : (task.images || []))
+          };
+          this.selectedTask = mapped;
+          if (this.selectedTask.images && this.selectedTask.images.length > 0) {
+            this.mainImage = this.selectedTask.images[0];
+          }
+        }
+      });
+    }
 
   }
 

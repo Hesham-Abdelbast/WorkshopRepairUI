@@ -1,6 +1,8 @@
 import { NgIf, NgFor, CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output, OnInit, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnChanges, SimpleChanges } from '@angular/core';
 import { ResourceService } from '../../../core/resource.service';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
 @Component({
   selector: 'app-project-details',
@@ -34,32 +36,27 @@ export class ProjectDetails implements OnChanges {
   }
 
   loadDataForTab(tab: string) {
-    if (!this.taskss || !this.taskss.Project) return;
-    
-    // Assuming we can filter by ProjectName or ID. Using Project name as ID for now if ID is missing.
-    const projectId = this.taskss.id || this.taskss.Project; 
-    const params = { projectName: this.taskss.Project }; // or projectId
-
-    if (tab === 'Unit' && this.units.length === 0) {
-      this.resource.getAll('units', params).subscribe(data => this.units = data || []);
-    } else if (tab === 'Tasks' && this.projectTasks.length === 0) {
-      // Assuming 'tasks' endpoint exists or using 'Projects/tasks'
-      // Using 'projects' itself might not be right for tasks inside a project. 
-      // Maybe 'MaintenanceVisits' or specific 'Tasks' endpoint.
-      // Let's assume 'MaintenanceVisits' are tasks.
-      this.resource.getAll('MaintenanceVisits', params).subscribe(data => this.projectTasks = data || []);
-    } else if (tab === 'Reports' && this.reports.length === 0) {
-      this.resource.getAll('Reports', params).subscribe(data => this.reports = data || []);
-    } else if (tab === 'Billing' && this.invoices.length === 0) {
-      this.resource.getAll('invoices', params).subscribe(data => this.invoices = data || []);
-    } else if (tab === 'Scopes' && this.scopes.length === 0) {
-       // Scopes might be part of project or separate. assuming separate for now or mock.
-       // If no endpoint, we might need to rely on project data or a new endpoint.
-       // Let's try 'Scopes' endpoint
-       this.resource.getAll('Scopes', params).subscribe({
-         next: data => this.scopes = data || [],
-         error: () => this.scopes = [] // Fallback
-       });
+    if (!this.taskss || (!this.taskss.id && !this.taskss.Project)) return;
+    const projectId = this.taskss.id;
+    if (tab === 'Unit') {
+      this.resource.getAll('Units', { projectId }).subscribe(data => this.units = data || []);
+    } else if (tab === 'Tasks') {
+      forkJoin({
+        units: this.resource.getAll('Units', { projectId }).pipe(catchError(() => of([]))),
+        tasks: this.resource.getAll('Tasks').pipe(catchError(() => of([])))
+      }).subscribe(({ units, tasks }) => {
+        const unitIds = (units || []).map((u: any) => u.id);
+        this.projectTasks = (tasks || []).filter((t: any) => unitIds.includes(t.unitId));
+      });
+    } else if (tab === 'Billing') {
+      this.resource.getAll('Invoices', {}).subscribe(data => this.invoices = data || []);
+    } else if (tab === 'Reports') {
+      this.resource.getAll('Reports', {}).subscribe(data => this.reports = data || []);
+    } else if (tab === 'Scopes') {
+      this.resource.getAll('Scopes', {}).subscribe({
+        next: data => this.scopes = data || [],
+        error: () => this.scopes = []
+      });
     }
   }
 

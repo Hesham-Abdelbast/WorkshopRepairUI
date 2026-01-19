@@ -289,6 +289,31 @@ export class SharedServiceRequestes implements OnInit {
     this.selectedTask = task;
     this.showDetails = true;
     this.loadTechnicians();
+    if (task?.id) {
+      this.resource.getById('ServiceRequests', String(task.id)).subscribe({
+        next: (item: any) => {
+          const mapped: Task = {
+            id: item.id,
+            selected: false,
+            name: item.unitName || task.name,
+            units: item.unitName || task.units,
+            status: item.status || task.status || 'New',
+            assignee: item.assignee || task.assignee || 'Unassigned',
+            address: item.address || task.address || '',
+            due: item.preferredTime || task.due || '',
+            objective: item.description || task.objective || '',
+            team: item.team || task.team || 'General',
+            slaDue: item.slaDue || task.slaDue || '',
+            slaStatus: item.slaStatus || task.slaStatus || 'Pending',
+            priority: item.priority || task.priority || 'Low',
+            visitType: item.serviceType || task.visitType || 'Maintenance',
+            notes: item.notes || task.notes || '',
+            originalData: item
+          };
+          this.selectedTask = mapped;
+        }
+      });
+    }
   }
 
   closeDetails() {

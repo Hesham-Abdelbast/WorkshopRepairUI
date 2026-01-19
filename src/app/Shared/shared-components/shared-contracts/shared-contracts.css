@@ -228,3 +228,115 @@
     color: orange;
     font-weight: bold;
 }
+/* 
+.status-summary {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 10px 0 14px;
+}
+.summary-card {
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 10px;
+  padding: 10px 14px;
+  min-width: 120px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-start;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+}
+.summary-card .label {
+  color: #666;
+  font-size: .85rem;
+}
+.summary-card .count {
+  color: #000;
+  font-weight: 600;
+  font-size: 1rem;
+} */
+
+/* ✅ الحاوية العامة */
+.status-summary {
+  display: flex;
+  gap: 1rem;
+  margin: 20px 0;
+  flex-wrap: wrap;
+}
+
+/* ✅ الكروت */
+.summary-card {
+  flex: 1;
+  min-width: 80px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 14px 18px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  transition: all 0.2s ease-in-out;
+}
+
+.summary-card:hover {
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+/* ✅ النصوص */
+.summary-card .label {
+  color: #666;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.summary-card .count {
+  font-size: 22px;
+  font-weight: 600;
+  color: #222;
+  margin-top: 4px;
+}
+
+/* 🟩 ألوان مخصصة حسب الحالة */
+.summary-card.approved {
+  border-color: #16a34a;
+}
+
+.summary-card.review {
+  border-color: #2563eb;
+}
+
+.summary-card.critical {
+  border-color: #dc2626;
+}
+
+/* details overlay */
+.details-overlay {margin-top: 80px; position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.4); z-index:1000; }
+.details-panel { background:#fff; padding:20px; border-radius:10px; max-width:600px; width:90%; box-shadow:0 6px 20px rgba(0,0,0,0.2); position:relative; }
+.close-btn { position:absolute; top:8px; right:10px; border:none; background:#eee; width:30px; height:30px; border-radius:6px; cursor:pointer; }
+
+/* التغيير في ال deatials */
+.details-panel select {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+  margin-left: 8px;
+  background: #f9f9f9;
+  cursor: pointer;
+}
+.details-span{
+  margin-left: 10px;
+}
+
+.details-panel select:focus {
+  outline: none;
+  border-color: #000;
+}
+.details-panel p strong {
+  font-family: poppins;
+  /* color: #8a8b8b; */
+  opacity: 0.5;
+  font-size: 15px;
+}

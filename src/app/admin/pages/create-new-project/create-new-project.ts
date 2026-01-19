@@ -1,6 +1,7 @@
 import { CommonModule, NgIf } from '@angular/common';
-import { Component, ElementRef, EventEmitter, Output, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, OnInit, Output, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ResourceService } from '../../../core/resource.service';
 
 @Component({
   selector: 'app-create-new-project',
@@ -8,7 +9,7 @@ import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } 
   templateUrl: './create-new-project.html',
   styleUrl: './create-new-project.css'
 })
-export class CreateNewProject {  
+export class CreateNewProject implements OnInit {  
 @Output() close = new EventEmitter<void>();
 @Output() save = new EventEmitter<any>();
 
@@ -48,7 +49,12 @@ installationTypes=['Rooftop','Façade','Ground'];
 hanrailLightings=['Yes','No'];
 firePumpTypes=['Automatic','Manual'];
 
-  form = {
+clients: { id: number; name: string }[] = [];
+selectedClientId: number | null = null;
+units: { id: number; label: string }[] = [];
+selectedUnitIds: number[] = [];
+
+form = {
     projectName: '',
     clientOrCompanyName: '',
     ProjectType: '',
@@ -66,6 +72,8 @@ firePumpTypes=['Automatic','Manual'];
     paymentTerms: '',
     files: [] as string[] ,
     siteAddress: '',
+    siteLat: '' as any,
+    siteLng: '' as any,
     siteAddressGoogleMapLocation: '',
     region: '',
     regionGoogleMapLocation: '',
@@ -121,6 +129,60 @@ firePumpTypes=['Automatic','Manual'];
     lastCivilDefenseApprovalDate: '',    
   };
 
+  constructor(private resource: ResourceService) {}
+
+  ngOnInit(): void {
+    this.resource.getAll('Clients').subscribe({
+      next: (list) => {
+        this.clients = (list || []).map((c: any) => ({ id: c.id, name: c.name }));
+      },
+      error: () => {
+        this.clients = [];
+        this.selectedClientId = null;
+      }
+    });
+    const key = localStorage.getItem('gmaps_api_key');
+    if (key) {
+      this.loadGoogleMaps().then(() => {
+        this.useGoogle = !!((window as any).google && (window as any).google.maps);
+        if (this.useGoogle) this.initGMap(); else this.initLeaflet();
+      });
+    } else {
+      this.useGoogle = false;
+      this.initLeaflet();
+    }
+  }
+ 
+ addressQuery: string = '';
+ addressSuggestions: { display_name: string; lat: string; lon: string }[] = [];
+ showAddressDropdown = false;
+ useGoogle = false;
+ private gmap?: any;
+ private gmarker?: any;
+ private autocomplete?: any;
+ private lmap?: any;
+ private lmarker?: any;
+
+ onClientChange() {
+   if (!this.selectedClientId) {
+     this.units = [];
+     this.selectedUnitIds = [];
+     return;
+   }
+   this.resource.getAll(`Clients/${this.selectedClientId}/units`).subscribe({
+     next: (list) => {
+       this.units = (list || []).map((u: any) => ({
+         id: u.id,
+         label: `${u.serial} - ${u.model}`
+       }));
+     },
+     error: () => {
+       this.units = [];
+       this.selectedUnitIds = [];
+     }
+   });
+ }
+
  selectedTechnician: string = ''; 
     
   technicians = ['Technician 1', 'Technician 2', 'Technician 3', 'Technician 4', 'Technician 5']; 
@@ -166,7 +228,7 @@ firePumpTypes=['Automatic','Manual'];
 
   if (this.step==1&&(
     !this.form.projectName || 
-      !this.form.clientOrCompanyName ||
+      !this.selectedClientId ||
       !this.form.ProjectType ||
       !this.form.phoneNumber||
       !this.form.emailAddress)) {
@@ -183,7 +245,7 @@ firePumpTypes=['Automatic','Manual'];
     this.step = this.step + 1;
   }
   doSaveFinal() {  
-    this.save.emit({ ...this.form });
+    this.save.emit({ ...this.form, clientId: this.selectedClientId, unitIds: this.selectedUnitIds });
   }
 
    forceDatePicker(event: Event) {
@@ -201,6 +263,130 @@ firePumpTypes=['Automatic','Manual'];
     this.step = 1;
   }
 
+ onAddressInput() {
+   if (this.useGoogle) return;
+   this.showAddressDropdown = true;
+   const q = (this.addressQuery || '').trim();
+   if (q.length < 3) {
+     this.addressSuggestions = [];
+     return;
+   }
+   const url = `https://nominatim.openstreetmap.org/search?format=json&limit=6&q=${encodeURIComponent(q)}`;
+   fetch(url).then(r => r.json()).then((res: any[]) => {
+     this.addressSuggestions = res || [];
+   });
+ }
+
+ selectSuggestion(s: { display_name: string; lat: string; lon: string }) {
+   if (this.useGoogle) return;
+   this.form.siteAddress = s.display_name;
+   this.form.siteLat = parseFloat(s.lat);
+   this.form.siteLng = parseFloat(s.lon);
+    this.form.siteAddressGoogleMapLocation = `${this.form.siteLat},${this.form.siteLng}`;
+   this.addressQuery = s.display_name;
+   this.showAddressDropdown = false;
+   this.updateLeafletMarker(Number(this.form.siteLat), Number(this.form.siteLng), this.form.siteAddress);
+ }
+
+ async loadGoogleMaps(): Promise<void> {
+   if ((window as any).google && (window as any).google.maps) return;
+   await new Promise<void>((resolve) => {
+     const key = localStorage.getItem('gmaps_api_key') || '';
+     const url = `https://maps.googleapis.com/maps/api/js?key=${key}&libraries=places`;
+     const script = document.createElement('script');
+     script.src = url;
+     script.async = true;
+     script.defer = true;
+     script.onload = () => resolve();
+     document.head.appendChild(script);
+   });
+ }
+
+ initGMap() {
+   const mapEl = document.getElementById('cnv-map');
+   const inputEl = document.getElementById('gmap-autocomplete') as HTMLInputElement | null;
+   if (!mapEl) return;
+   this.gmap = (window as any).google ? new (window as any).google.maps.Map(mapEl, {
+     center: { lat: 33.5138, lng: 36.2165 },
+     zoom: 12,
+     mapTypeId: 'roadmap'
+   }) : null;
+   if (inputEl && (window as any).google) {
+     this.autocomplete = new (window as any).google.maps.places.Autocomplete(inputEl, {
+       fields: ['formatted_address', 'geometry'],
+       types: ['geocode']
+     });
+     this.autocomplete.addListener('place_changed', () => {
+       const place = this.autocomplete.getPlace();
+       if (!place || !place.geometry) return;
+       const loc = place.geometry.location;
+       const lat = loc.lat();
+       const lng = loc.lng();
+       this.form.siteAddress = place.formatted_address || inputEl.value || '';
+       this.form.siteLat = lat;
+       this.form.siteLng = lng;
+      this.form.siteAddressGoogleMapLocation = `${lat},${lng}`;
+       this.updateGMarker(lat, lng, this.form.siteAddress);
+     });
+   }
+   if (this.form.siteLat && this.form.siteLng) {
+     this.updateGMarker(Number(this.form.siteLat), Number(this.form.siteLng), this.form.siteAddress);
+   }
+ }
+
+ updateGMarker(lat: number, lng: number, label?: string) {
+   if (!this.gmap) return;
+   if (this.gmarker) {
+     this.gmarker.setPosition({ lat, lng });
+   } else if ((window as any).google) {
+     this.gmarker = new (window as any).google.maps.Marker({
+       position: { lat, lng },
+       map: this.gmap
+     });
+   }
+   if (label && (window as any).google) {
+     const infowindow = new (window as any).google.maps.InfoWindow({ content: label });
+     infowindow.open(this.gmap, this.gmarker);
+   }
+   this.gmap.setCenter({ lat, lng });
+   this.gmap.setZoom(Math.max(this.gmap.getZoom(), 13));
+ }
+
+ initLeaflet() {
+   const el = document.getElementById('cnv-map');
+   if (!el) return;
+   if (this.lmap) return;
+   const L = (window as any).L;
+   if (!L) return;
+   this.lmap = L.map('cnv-map', { zoomControl: true }).setView([33.5138, 36.2165], 12);
+   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+     maxZoom: 19,
+     attribution: '© OpenStreetMap'
+   }).addTo(this.lmap);
+   if (this.form.siteLat && this.form.siteLng) {
+     this.updateLeafletMarker(Number(this.form.siteLat), Number(this.form.siteLng), this.form.siteAddress);
+   }
+ }
+
+ updateLeafletMarker(lat: number, lng: number, label?: string) {
+   if (!this.lmap) this.initLeaflet();
+   if (!this.lmap) return;
+   const L = (window as any).L;
+   const icon = L.icon({
+     iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+     shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+     iconAnchor: [12, 41],
+     popupAnchor: [1, -34],
+     shadowSize: [41, 41]
+   });
+   if (this.lmarker) {
+     this.lmarker.setLatLng([lat, lng]);
+   } else {
+     this.lmarker = L.marker([lat, lng], { icon }).addTo(this.lmap);
+   }
+   if (label) this.lmarker.bindPopup(label).openPopup();
+   this.lmap.setView([lat, lng], Math.max(this.lmap.getZoom(), 13));
+ }
 //   // دالة مسح كل بيانات الزيارة (Reset Form)
 //   clearVisit() {
 //     // إعادة تعيين الـ Form إلى القيم الافتراضية
