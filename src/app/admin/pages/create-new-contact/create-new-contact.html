@@ -59,6 +59,27 @@
           <input type="number" [(ngModel)]="form.AmountperCycle" name="AmountperCycle"/>
       </label>
 
+      <label class="full-width">Contract Photos & Files
+        <div class="custom-file-upload" (click)="openFilePicker()">
+          <i class="pin-icon">
+              <img src="/assets/images/imgIcon.png" alt="">
+          </i>
+          <span class="upload-text">Upload File</span>
+        </div>
+      </label>
+      <div class="selected-files">
+        <div class="thumbnail-item" *ngFor="let img of form.Photos; let i = index">
+          <img [src]="img" alt="contract photo" (click)="openUrl(img)">
+          <button type="button" class="delete-icon" (click)="removePhoto(i)">✕</button>
+        </div>
+      </div>
+      <div class="selected-files" *ngIf="form.Files.length">
+        <div class="thumbnail-item" *ngFor="let f of form.Files; let i = index">
+          <button type="button" (click)="openUrl(f.url, f.name)">{{ f.name }}</button>
+          <button type="button" class="delete-icon" (click)="removeFile(i)">✕</button>
+        </div>
+      </div>
+
     </div>
     <div class="cnv-actions report-actions">
     <button type="button" class="cancel-button" (click)="doClose()">Cancel</button>

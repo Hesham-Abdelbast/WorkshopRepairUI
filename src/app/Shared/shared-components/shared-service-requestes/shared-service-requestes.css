@@ -76,8 +76,8 @@ tbody :hover { background:#f1f1f1;;}
 .page-btn.active { background:#ffe066; font-weight:700; }
 
 /* details overlay */
-.details-overlay {margin-top: 40px; position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.4); z-index:1000; }
-.details-panel { background:#fff; padding:20px; border-radius:10px; max-width:600px; width:90%; box-shadow:0 6px 20px rgba(0,0,0,0.2); position:relative; }
+.details-overlay {margin-top: 40px; position:fixed; inset:0; display:flex; align-items:flex-start; justify-content:center; background:rgba(0,0,0,0.4); z-index:1000; padding-top: 150px; overflow-y: auto; padding-bottom: 50px; }
+.details-panel { background:#fff; padding:20px; border-radius:10px; max-width:600px; width:90%; box-shadow:0 6px 20px rgba(0,0,0,0.2); position:relative; margin-bottom: 50px; }
 .close-btn { position:absolute; top:8px; right:10px; border:none; background:#eee; width:30px; height:30px; border-radius:6px; cursor:pointer; }
 
 /* التغيير في ال deatials */

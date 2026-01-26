@@ -217,7 +217,7 @@ export class CreateNewVisit implements OnInit {
   onAddressInput() {
     if (this.useGoogle) return;
     this.showAddressDropdown = true;
-    const q = (this.addressQuery || '').trim();
+    const q = (this.form.address || '').trim();
     if (q.length < 3) {
       this.addressSuggestions = [];
       return;
@@ -337,11 +337,60 @@ export class CreateNewVisit implements OnInit {
   onProjectChange(projectId: number) {
     if (!projectId) {
       this.unitService.getAll().subscribe(data => this.units = data);
+      this.form.address = '';
+      this.form.lat = '';
+      this.form.lng = '';
+      this.addressQuery = '';
       return;
     }
     this.unitService.getByProject(Number(projectId)).subscribe(data => {
       this.units = data;
       this.form.units = '';
+    });
+    this.resource.getById('Projects', Number(projectId)).subscribe({
+      next: (p: any) => {
+        const addr = p?.siteAddress || p?.location || this.form.address;
+        this.form.address = addr;
+        this.addressQuery = addr;
+        this.form.lat = p?.siteLat ?? this.form.lat;
+        this.form.lng = p?.siteLng ?? this.form.lng;
+        const lat = Number(this.form.lat);
+        const lng = Number(this.form.lng);
+        if (!Number.isNaN(lat) && !Number.isNaN(lng)) {
+          if (this.useGoogle) {
+            this.updateGMarker(lat, lng, this.form.address);
+          } else {
+            this.updateLeafletMarker(lat, lng, this.form.address);
+          }
+        }
+      },
+      error: () => {}
+    });
+  }
+
+  onUnitChange(unitId: any) {
+    const id = Number(unitId);
+    if (!id || Number.isNaN(id)) return;
+    this.resource.getById('Units', id).subscribe({
+      next: (u: any) => {
+        const addr = u?.project?.siteAddress || u?.client?.address || this.form.address;
+        this.form.address = addr;
+        this.addressQuery = addr;
+        if (u?.lat != null && u?.lng != null) {
+          this.form.lat = u.lat;
+          this.form.lng = u.lng;
+          const lat = Number(this.form.lat);
+          const lng = Number(this.form.lng);
+          if (!Number.isNaN(lat) && !Number.isNaN(lng)) {
+            if (this.useGoogle) {
+              this.updateGMarker(lat, lng, this.form.address);
+            } else {
+              this.updateLeafletMarker(lat, lng, this.form.address);
+            }
+          }
+        }
+      },
+      error: () => {}
     });
   }
 }

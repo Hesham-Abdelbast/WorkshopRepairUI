@@ -40,6 +40,7 @@ export class SharedContracts implements OnInit {
   totalValue = 0;
   showDetails = false;
   selected: any = null;
+  detailsPhotos: string[] = [];
   showFilterBuilder = false;
   newFilter = { field: '', value: '' };
   activeFilters: { field: string; value: string }[] = [];
@@ -124,25 +125,35 @@ export class SharedContracts implements OnInit {
     this.showDetails = true;
     window.scrollTo({ top: 0, behavior: 'smooth' });
     document.body.style.overflow = 'hidden';
-    if (item?.id) {
-      this.resourceService.getById('Contracts', item.id).subscribe({
-        next: (c: any) => {
-          const mapped: Contract = {
-            id: c.id,
-            selected: false,
-            Title: c.title || 'Untitled Contract',
-            Type: c.type || 'Standard',
-            Status: c.status || 'Draft',
-            Value: c.value || 0,
-            StartDate: c.startDate ? new Date(c.startDate).toLocaleDateString() : '',
-            EndDate: c.endDate ? new Date(c.endDate).toLocaleDateString() : '',
-            Client: c.client?.name || 'Unknown Client',
-            Terms: c.terms,
-            raw: c
-          };
-          this.selected = mapped;
+    const c = item?.raw || item;
+    if (c) {
+      const mapped: Contract = {
+        id: c.id,
+        selected: false,
+        Title: c.title || item?.Title || 'Untitled Contract',
+        Type: c.type || item?.Type || 'Standard',
+        Status: c.status || item?.Status || 'Draft',
+        Value: c.value ?? item?.Value ?? 0,
+        StartDate: c.startDate ? new Date(c.startDate).toLocaleDateString() : item?.StartDate || '',
+        EndDate: c.endDate ? new Date(c.endDate).toLocaleDateString() : item?.EndDate || '',
+        Client: c.client?.name || item?.Client || 'Unknown Client',
+        Terms: c.terms ?? item?.Terms,
+        raw: c
+      };
+      this.selected = mapped;
+      this.detailsPhotos = [];
+      const p = c.photos;
+      if (Array.isArray(p)) {
+        this.detailsPhotos = p;
+      } else if (typeof p === 'string' && p.trim() !== '') {
+        try {
+          const arr = JSON.parse(p);
+          if (Array.isArray(arr)) this.detailsPhotos = arr.filter(x => typeof x === 'string');
+        } catch {
+          const arr = p.split(',').map(x => x.trim()).filter(x => x);
+          this.detailsPhotos = arr;
         }
-      });
+      }
     }
   }
   closeDetails() {
@@ -246,6 +257,40 @@ export class SharedContracts implements OnInit {
       document.body.style.overflow = 'auto'; // يرجع scroll الصفحة
 
   }
- addTask(newVisit: any) {}
+  openInNewTab(url: string, name?: string) {
+    const w = window.open('', '_blank');
+    if (!w) return;
+    const isPdf = url.startsWith('data:application/pdf') || /\.pdf($|\?)/i.test(url);
+    const content = isPdf
+      ? `<embed src="${url}" type="application/pdf" style="width:100%;height:95vh;">`
+      : `<img src="${url}" style="max-width:100%;height:auto;">`;
+    const download = `<a href="${url}" download="${name || 'download'}" style="margin:10px 0;display:inline-block;">Download</a>`;
+    w.document.write(`<!doctype html><html><head><title>Preview</title></head><body>${content}<div>${download}</div></body></html>`);
+    w.document.close();
+  }
+ addTask(newVisit: any) {
+   const payload: any = {
+     title: newVisit.LinkedProject || 'New Contract',
+     type: newVisit.Type || 'AMC',
+     startDate: newVisit.Start ? new Date(newVisit.Start).toISOString() : new Date().toISOString(),
+     endDate: newVisit.End ? new Date(newVisit.End).toISOString() : new Date().toISOString(),
+     status: 'Active',
+     value: Number(newVisit.AmountperCycle ?? 0) || 0,
+     terms: newVisit.BillingCycle || '',
+     photos: Array.isArray(newVisit.Photos) ? JSON.stringify(newVisit.Photos) : null
+   };
+   this.resourceService.create('Contracts', payload).subscribe({
+     next: () => {
+       this.loadContracts();
+       this.showCreate = false;
+       document.body.style.overflow = 'auto';
+     },
+     error: () => {
+       this.loadContracts();
+       this.showCreate = false;
+       document.body.style.overflow = 'auto';
+     }
+   });
+ }
 
 }

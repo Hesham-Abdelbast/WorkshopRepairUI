@@ -63,7 +63,8 @@ export class SharedArchive {
           workPerformed: r.workPerformed || '',
           technician: r.technicianName || '',
           comments: r.comments || '',
-          systemId: r.unit?.name || r.unitId || '',
+          // استخدم Model + Serial إن توفروا بدلاً من name غير الموجود
+          systemId: (r.unit?.model && r.unit?.serial) ? `${r.unit.model} (${r.unit.serial})` : (r.unitId ? String(r.unitId) : ''),
           photos: Array.isArray(r.photos) ? r.photos : (typeof r.photos === 'string' && r.photos ? r.photos.split(',') : []),
           Status: r.status
         }));
@@ -166,6 +167,17 @@ export class SharedArchive {
     this.showCreateReportModal = true;
     document.body.style.overflow = 'hidden'; // يمنع scroll الصفحة
 
+  }
+  openInNewTab(url: string, name?: string) {
+    const w = window.open('', '_blank');
+    if (!w) return;
+    const isPdf = url.startsWith('data:application/pdf') || /\.pdf($|\?)/i.test(url);
+    const content = isPdf
+      ? `<embed src="${url}" type="application/pdf" style="width:100%;height:95vh;">`
+      : `<img src="${url}" style="max-width:100%;height:auto;">`;
+    const download = `<a href="${url}" download="${name || 'download'}" style="margin:10px 0;display:inline-block;">Download</a>`;
+    w.document.write(`<!doctype html><html><head><title>Preview</title></head><body>${content}<div>${download}</div></body></html>`);
+    w.document.close();
   }
   // 4. دالة لإغلاق الـ Modal
   closeCreateReport() {

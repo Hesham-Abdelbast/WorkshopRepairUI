@@ -52,8 +52,8 @@ export class CreateNewUnit {
     NoFloors: '',
     DriveSystem: '',
     Description: '',
-    siteAddress: ''
-//     photos: [] as string[]
+    siteAddress: '',
+    attachments: [] as { name: string; type: string; url: string }[]
   };
   // الدوال
   doClose() {
@@ -126,9 +126,12 @@ selectSuggestion(s: { display_name: string; lat: string; lon: string }) {
   this.finalData.projectId = this.selectedProjectId || undefined;
   this.finalData.lat = this.finalData.lat || 0;
   this.finalData.lng = this.finalData.lng || 0;
-    // إرسال بيانات الـ Report الجديدة
-    this.save.emit(this.form);
-    this.UnitService.setNew(this.finalData).subscribe(data => {
+    this.UnitService.setNew(this.finalData).subscribe({
+      next: (created) => {
+        this.save.emit(created);
+      },
+      error: () => {
+      }
     });
   }
 
@@ -139,6 +142,34 @@ selectSuggestion(s: { display_name: string; lat: string; lon: string }) {
               target.showPicker();
         }
     }
+  onFileSelected(event: any) {
+    const files: FileList = event.target.files;
+    if (!files || files.length === 0) return;
+    Array.from(files).forEach(file => {
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        const url = e.target?.result as string;
+        if (!url) return;
+        this.form.attachments.push({ name: file.name, type: file.type, url });
+      };
+      reader.readAsDataURL(file);
+    });
+    event.target.value = '';
+  }
+  removeAttachment(index: number) {
+    this.form.attachments.splice(index, 1);
+  }
+  openAttachment(f: { name: string; type: string; url: string }) {
+    const w = window.open('', '_blank');
+    if (!w) return;
+    const isPdf = f.type === 'application/pdf' || f.url.startsWith('data:application/pdf');
+    const content = isPdf
+      ? `<embed src="${f.url}" type="application/pdf" style="width:100%;height:95vh;">`
+      : `<img src="${f.url}" style="max-width:100%;height:auto;">`;
+    const download = `<a href="${f.url}" download="${f.name}" style="margin:10px 0;display:inline-block;">Download</a>`;
+    w.document.write(`<!doctype html><html><head><title>Preview</title></head><body>${content}<div>${download}</div></body></html>`);
+    w.document.close();
+  }
 //   openFilePicker() {
 //   const input = document.createElement('input');
 //   input.type = 'file';

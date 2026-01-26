@@ -19,7 +19,7 @@ export class CreateNewReport {
  selectedFile: File | null = null;
   fileContent: string | ArrayBuffer | null = null;
   maxFileSize = 5; // MB
-  allowedFileTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+  allowedFileTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'application/pdf'];
   errorMessage = '';
     previewUrl: string | null = null;
 
@@ -43,6 +43,7 @@ export class CreateNewReport {
     status: '',
     comments: '',
     photos: [] as string[],
+    files: [] as { name: string; type: string; url: string }[],
     projectId: ''
   };
 
@@ -99,15 +100,12 @@ submitted = false;
   const input = document.createElement('input');
   input.type = 'file';
   input.multiple = true;
-  input.accept = 'image/*'; // الصور فقط
+  input.accept = 'image/*,application/pdf';
 
   input.onchange = (event: Event) => {
     const target = event.target as HTMLInputElement;
     const files = target.files;
     if (!files || files.length === 0) return;
-
-    // فضي الصور القديمة
-    this.form.photos = [];
 
     // حول FileList لمصفوفة File[]
     const filesArray: File[] = Array.from(files);
@@ -125,9 +123,13 @@ submitted = false;
 
       const reader = new FileReader();
       reader.onload = () => {
-        // تأكد إن النتيجة Base64 string صالحة
         if (reader.result) {
-          this.form.photos.push(reader.result as string);
+          const url = reader.result as string;
+          if (file.type.startsWith('image/')) {
+            this.form.photos.push(url);
+          } else {
+            this.form.files.push({ name: file.name, type: file.type, url });
+          }
         }
       };
       reader.readAsDataURL(file);
@@ -142,6 +144,21 @@ submitted = false;
   if (index >= 0 && index < this.form.photos.length) {
     this.form.photos.splice(index, 1);
   }
+ }
+ openUrl(url: string, name?: string) {
+   const w = window.open('', '_blank');
+   if (!w) return;
+   const isPdf = url.startsWith('data:application/pdf') || /\.pdf($|\?)/i.test(url);
+   const content = isPdf
+     ? `<embed src="${url}" type="application/pdf" style="width:100%;height:95vh;">`
+     : `<img src="${url}" style="max-width:100%;height:auto;">`;
+   const download = `<a href="${url}" download="${name || 'download'}" style="margin:10px 0;display:inline-block;">Download</a>`;
+   w.document.write(`<!doctype html><html><head><title>Preview</title></head><body>${content}<div>${download}</div></body></html>`);
+   w.document.close();
+ }
+ removeFile(index: number) {
+   if (index < 0 || index >= this.form.files.length) return;
+   this.form.files.splice(index, 1);
  }
 
 }

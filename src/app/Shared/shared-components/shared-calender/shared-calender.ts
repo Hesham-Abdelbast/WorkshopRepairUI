@@ -122,7 +122,7 @@ export class SharedCalender implements OnInit {
         return {
           id: t.id,
           title: t.title,
-          project: t.unit?.client?.name || 'Project',
+          project: (t as any)?.unit?.project?.name || t.unit?.client?.name || 'Project',
           assignee: assigneeLabel ? [assigneeLabel] : [],
           date,
           time,
@@ -232,16 +232,20 @@ export class SharedCalender implements OnInit {
     const ot = this.selectedTask.originalTask;
     const assigneeUser = (ot as any)?.assigneeUser;
     const unitsText = ot?.unit ? `${ot.unit.model} (${ot.unit.serial})` : '';
-    const address = ot?.unit?.client?.address || '';
-    const dueStr = this.selectedTask.date ? `${this.selectedTask.date} ${this.selectedTask.time}` : '';
-    const slaDueStr = this.selectedTask.date ? `${this.selectedTask.date} ${this.selectedTask.timeEnd}` : '';
+    const address = (ot as any)?.locationName || (ot as any)?.unit?.project?.siteAddress || (ot as any)?.unit?.client?.address || '';
+    const startStr = (ot as any)?.scheduledStart || (ot as any)?.scheduledEnd || '';
+    const endStr = (ot as any)?.scheduledEnd || (ot as any)?.scheduledStart || '';
+    const startDate = startStr ? new Date(startStr) : null;
+    const endDate = endStr ? new Date(endStr) : null;
+    const dueStr = startDate ? `${startDate.getFullYear()}-${String(startDate.getMonth() + 1).padStart(2, '0')}-${String(startDate.getDate()).padStart(2, '0')} ${String(startDate.getHours()).padStart(2, '0')}:${String(startDate.getMinutes()).padStart(2, '0')}` : '';
+    const slaDueStr = endDate ? `${endDate.getFullYear()}-${String(endDate.getMonth() + 1).padStart(2, '0')}-${String(endDate.getDate()).padStart(2, '0')} ${String(endDate.getHours()).padStart(2, '0')}:${String(endDate.getMinutes()).padStart(2, '0')}` : '';
     const assigneeLabel = assigneeUser?.fullName || assigneeUser?.email || ot?.assigneeUserId || ((this.selectedTask.assignee && this.selectedTask.assignee.length) ? this.selectedTask.assignee[0] : '');
     return {
       name: this.selectedTask.title,
       status: this.selectedTask.status || 'Scheduled',
-      slaStatus: 'OK',
+      slaStatus: (ot as any)?.slaStatus || 'Pending',
       priority: (ot as any)?.priority || 'Normal',
-      team: 'Damascus Ops',
+      team: (ot as any)?.team || 'Ops',
       units: unitsText || this.selectedTask.project || '',
       address,
       due: dueStr,

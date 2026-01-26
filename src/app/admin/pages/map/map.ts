@@ -95,7 +95,7 @@ export class MapComponent implements AfterViewInit {
       priority: s.priority,
       team: s.unit?.client?.name || 'Ops',
       units: s.unit ? `${s.unit.model} (${s.unit.serial})` : '',
-      address: s.unit?.client?.address || '',
+      address: (s as any)?.locationName || s.unit?.project?.siteAddress || s.unit?.client?.address || '',
       due: s.scheduledEnd || '',
       slaDue: s.scheduledEnd || '',
       objective: s.description || '',
@@ -118,7 +118,8 @@ export class MapComponent implements AfterViewInit {
         })
       }).addTo(this.map!);
       marker.on('click', () => this.focusTask(t));
-      marker.bindPopup(`<b>${t.title}</b><br/>${t.unit?.model} (${t.unit?.serial})<br/>${t.unit?.client?.address || ''}`);
+      const addr = (t as any)?.locationName || t.unit?.project?.siteAddress || t.unit?.client?.address || '';
+      marker.bindPopup(`<b>${t.title}</b><br/>${t.unit?.model} (${t.unit?.serial})<br/>${addr}`);
       this.markers.push(marker);
     }
     if (this.markers.length) {
@@ -130,7 +131,7 @@ export class MapComponent implements AfterViewInit {
   focusTask(t: TaskItem) {
     const lat = t.lat, lng = t.lng;
     const unitText = t.unit ? `${t.unit.model} (${t.unit.serial})` : '';
-    const address = t.unit?.client?.address || '';
+    const address = (t as any)?.locationName || t.unit?.project?.siteAddress || t.unit?.client?.address || '';
     this.caption = `${unitText}\nAddress: ${address} • ${t.title}`;
     this.selected = t;
     if (lat != null && lng != null) {

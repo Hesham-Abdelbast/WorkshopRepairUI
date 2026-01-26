@@ -140,65 +140,28 @@ export class SharedUnits {
     document.body.style.overflow = 'auto'; // يرجع scroll الصفحة
 
   }
-  saveNewReport(newUnit: any) {
-    const payload = {
-      unitNumber: newUnit.UnitNumber || 0,
-      unitName: newUnit.unitName || '',
-      projectName: newUnit.Project || '',
-      building: newUnit.Building || '',
-      capacity: newUnit.Capacity || '',
-      elevatorType: newUnit.ElevatorType || '',
-      noPeople: newUnit.NoPeople || 0,
-      motorType: newUnit.MotorType || '',
-      speed: newUnit.Speed || 0,
-      controlSystem: newUnit.ControlSystem || '',
-      noFloors: newUnit.NoFloors || 0,
-      driveSystem: newUnit.DriveSystem || '',
-      description: newUnit.Description || ''
+  saveNewReport(created: any) {
+    const data: MaintenanceUnit = {
+      UnitNumber: created?.id ?? (this.units.length + 1),
+      unitName: created?.model || '',
+      Serial: created?.serial || '',
+      Model: created?.model || '',
+      ClientName: created?.client?.name || '',
+      Project: created?.project?.name || '',
+      Building: '',
+      Capacity: '',
+      ElevatorType: '',
+      NoPeople: 0,
+      MotorType: '',
+      Speed: 0,
+      ControlSystem: '',
+      NoFloors: 0,
+      DriveSystem: '',
+      Description: ''
     };
-    this.resource.create('Units', payload).subscribe({
-      next: (created) => {
-        const data: MaintenanceUnit = {
-          UnitNumber: created?.unitNumber ?? payload.unitNumber,
-          unitName: created?.unitName ?? payload.unitName,
-          Project: created?.projectName ?? payload.projectName,
-          Building: created?.building ?? payload.building,
-          Capacity: created?.capacity ?? payload.capacity,
-          ElevatorType: created?.elevatorType ?? payload.elevatorType,
-          NoPeople: created?.noPeople ?? payload.noPeople,
-          MotorType: created?.motorType ?? payload.motorType,
-          Speed: created?.speed ?? payload.speed,
-          ControlSystem: created?.controlSystem ?? payload.controlSystem,
-          NoFloors: created?.noFloors ?? payload.noFloors,
-          DriveSystem: created?.driveSystem ?? payload.driveSystem,
-          Description: created?.description ?? payload.description,
-        };
-        this.units.unshift(data);
-        this.closeCreateUnit();
-        document.body.style.overflow = 'auto';
-      },
-      error: () => {
-        const data: MaintenanceUnit = {
-          UnitNumber: payload.unitNumber,
-          unitName: payload.unitName,
-          Project: payload.projectName,
-          Building: payload.building,
-          Capacity: payload.capacity,
-          ElevatorType: payload.elevatorType,
-          NoPeople: payload.noPeople,
-          MotorType: payload.motorType,
-          Speed: payload.speed,
-          ControlSystem: payload.controlSystem,
-          NoFloors: payload.noFloors,
-          DriveSystem: payload.driveSystem,
-          Description: payload.description
-        };
-        this.units.unshift(data);
-        this.closeCreateUnit();
-        document.body.style.overflow = 'auto';
-      }
-    });
-
+    this.units.unshift(data);
+    this.closeCreateUnit();
+    document.body.style.overflow = 'auto';
   }
   constructor(private resource: ResourceService) { }
 }

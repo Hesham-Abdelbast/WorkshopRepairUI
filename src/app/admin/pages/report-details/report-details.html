@@ -11,7 +11,7 @@
   <div class="details-content-wrapper">
     <div class="left-column-photos">
       <div class="main-photo-area">
-        <img [src]="mainImage" alt="Main Work Photo" *ngIf="mainImage" class="main-report-photo">
+        <img [src]="mainImage" alt="Main Work Photo" *ngIf="mainImage" class="main-report-photo" (click)="openUrl(mainImage)">
         <div *ngIf="!mainImage && reportDetails.photos.length === 0" class="no-photo-placeholder">No Main Photo Available</div>
       </div>
       

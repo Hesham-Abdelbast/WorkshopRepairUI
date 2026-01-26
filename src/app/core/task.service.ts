@@ -17,6 +17,11 @@ export interface TaskItem {
   assigneeUser?: { id?: string; fullName?: string; email?: string };
   lat?: number;
   lng?: number;
+  locationName?: string;
+  team?: string;
+  slaDue?: string;
+  slaStatus?: string;
+  notes?: string;
 }
 
 export interface CreateTaskDto {
@@ -29,6 +34,11 @@ export interface CreateTaskDto {
   lat?: number;
   lng?: number;
   assigneeUserId?: string;
+  team?: string;
+  slaDue?: string;
+  slaStatus?: string;
+  notes?: string;
+  locationName?: string;
 }
 
 @Injectable({
@@ -37,7 +47,6 @@ export interface CreateTaskDto {
 export class TaskService {
 
   constructor(private http: HttpClient) { }
-
   getAll(): Observable<TaskItem[]> {
     return this.http.get<TaskItem[]>(`${API_BASE_URL}/Tasks`);
   }

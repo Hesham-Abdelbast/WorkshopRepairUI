@@ -4,12 +4,14 @@
   inset: 0;
   background: rgba(0,0,0,0.4);
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   z-index: 1000;
-  padding-top: 90px;
+  padding-top: 150px;
   font-family: poppins;
   margin-top: 10px;
+  overflow-y: auto;
+  padding-bottom: 50px;
 }
 
 /* صندوق المودال */
@@ -21,8 +23,7 @@
   padding: 15px 20px;
   position: relative;
   box-shadow: 0px 8px 20px rgba(0,0,0,0.15);
-   max-height: 90vh; /* يمنع المودال من كسر الشاشة */
-  overflow-y: auto; /* يسمح بالـ scroll داخلي */
+  margin-bottom: 50px;
 }
 
 /* زر الإغلاق */
@@ -244,6 +245,60 @@ color: #1C1C1C33;
   object-fit: cover;
   border-radius: 6px;
   border: 1px solid #ccc;
+}
+.thumbnail-item {
+  position: relative;
+  width: 60px;
+  height: 60px;
+}
+.thumbnail-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+.delete-icon {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 20px;
+  height: 20px;
+  border: none;
+  border-radius: 50%;
+  background: #f44336;
+  color: #fff;
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 20px;
+  text-align: center;
+}
+.thumbnail-item {
+  position: relative;
+  width: 60px;
+  height: 60px;
+}
+.thumbnail-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+.delete-icon {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 20px;
+  height: 20px;
+  border: none;
+  border-radius: 50%;
+  background: #f44336;
+  color: #fff;
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 20px;
+  text-align: center;
 }
 /* لو مدخلش قيمه في ال select Unit Type */
 .error-message {

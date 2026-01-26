@@ -97,24 +97,22 @@ export class SharedTaskList implements OnInit {
         id: t.id,
         selected: false,
         status: t.status,
-        name: t.title,
+        name: (t as any)?.unit?.project?.name || t.title,
         units: t.unit ? `${t.unit.model} (${t.unit.serial})` : 'Unknown Unit',
-        address: t.unit?.client?.address || '',
-        due: t.scheduledEnd ? t.scheduledEnd.toString().split('T')[0] : '',
+        address: (t as any)?.locationName || (t as any)?.unit?.project?.siteAddress || t.unit?.client?.address || '',
+        due: (t.slaDue || t.scheduledEnd) ? String(t.slaDue || t.scheduledEnd).toString().split('T')[0] : '',
         objective: t.description || '',
-        team: 'Damascus Ops',
-        slaDue: t.scheduledEnd ? t.scheduledEnd.toString() : '',
-      slaStatus: 'OK',
+        team: t.team || 'Ops',
+        slaDue: (t.slaDue || t.scheduledEnd) ? String(t.slaDue || t.scheduledEnd).toString() : '',
+      slaStatus: t.slaStatus || 'Pending',
       priority: t.priority,
       assignee: (t as any)?.assigneeUser?.fullName || (t as any)?.assigneeUser?.email || t.assigneeUserId || '',
       assigneeId: t.assigneeUserId || '',
       visitType: t.status,
-      notes: ''
+      notes: t.notes || ''
       }));
     });
   }
-
-
   selectedCount = 0;
   // ---------------- selection ----------------
   toggleAll() {
@@ -122,6 +120,7 @@ export class SharedTaskList implements OnInit {
     this.selectedCount = this.pagedTasks.filter(t => t.selected).length;
   }
   numberOfSelcted: number = 0;
+
   updateAllSelected() {
     // update global checkbox according to visible (paged) items
     this.allSelected =
@@ -313,35 +312,65 @@ export class SharedTaskList implements OnInit {
 
   addTask(newVisit: any) {
     const techId = Array.isArray(newVisit.technicians) && newVisit.technicians.length ? String(newVisit.technicians[0]?.id || '') : null;
-    const dto: CreateTaskDto = {
+    const baseDto: CreateTaskDto = {
       unitId: Number(newVisit.units),
-      title: newVisit.project,
+      title: '',
       description: newVisit.objective,
       scheduledStart: newVisit.due && newVisit.time ? `${newVisit.due}T${newVisit.time}:00` : undefined,
       scheduledEnd: newVisit.due && newVisit.time ? `${newVisit.due}T${newVisit.time}:00` : undefined,
       priority: 'Normal',
       lat: newVisit.lat ? Number(newVisit.lat) : undefined,
       lng: newVisit.lng ? Number(newVisit.lng) : undefined,
-      assigneeUserId: techId || undefined
+      locationName: newVisit.address || undefined,
+      assigneeUserId: techId || undefined,
+      team: 'Ops',
+      slaDue: newVisit.due && newVisit.time ? `${newVisit.due}T${newVisit.time}:00` : undefined,
+      slaStatus: 'Pending',
+      notes: ''
     };
 
-    this.taskService.create(dto).subscribe(res => {
-      const finish = () => {
-        this.loadTask();
+    const finishCreate = (dto: CreateTaskDto) => {
+      this.taskService.create(dto).subscribe(res => {
+        const finish = () => {
+          this.loadTask();
+          this.showCreate = false;
+          document.body.style.overflow = 'auto';
+        };
+        if (!dto.assigneeUserId && techId && res?.id) {
+          this.taskService.assign(res.id, techId).subscribe({ next: finish, error: finish });
+        } else {
+          finish();
+        }
+      }, err => {
+        console.error(err);
+        alert('Error creating task: ' + err.message);
         this.showCreate = false;
         document.body.style.overflow = 'auto';
-      };
-      if (!dto.assigneeUserId && techId && res?.id) {
-        this.taskService.assign(res.id, techId).subscribe({ next: finish, error: finish });
-      } else {
-        finish();
-      }
-    }, err => {
-      console.error(err);
-      alert('Error creating task: ' + err.message);
-      this.showCreate = false;
-      document.body.style.overflow = 'auto';
-    });
+      });
+    };
+
+    const projId = Number(newVisit.project);
+    if (projId && !Number.isNaN(projId)) {
+      this.resource.getById('Projects', projId).subscribe({
+        next: (p: any) => {
+          const dto: CreateTaskDto = {
+            ...baseDto,
+            title: p?.name || `Project ${projId}`,
+            lat: baseDto.lat ?? (p?.siteLat ?? undefined),
+            lng: baseDto.lng ?? (p?.siteLng ?? undefined),
+            locationName: baseDto.locationName ?? (p?.siteAddress ?? undefined),
+          };
+          finishCreate(dto);
+        },
+        error: () => {
+          const dto: CreateTaskDto = { ...baseDto, title: String(newVisit.project) };
+          finishCreate(dto);
+        }
+      });
+    } else {
+      const dto: CreateTaskDto = { ...baseDto, title: String(newVisit.project || 'Untitled Task') };
+      finishCreate(dto);
+    }
   }
 
   // ---------------- create suggested repair ----------------

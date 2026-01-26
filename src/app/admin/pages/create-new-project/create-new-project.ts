@@ -22,7 +22,7 @@ export class CreateNewProject implements OnInit {
   selectedFile: File | null = null;
   fileContent: string | ArrayBuffer | null = null;
   maxFileSize = 5; // MB
-  allowedFileTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+allowedFileTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'application/pdf'];
   errorMessage = '';
     previewUrl: string | null = null;
   // --------------------------- الإضافات الجديدة ---------------------------
@@ -71,6 +71,7 @@ form = {
     contractType: '',
     paymentTerms: '',
     files: [] as string[] ,
+    contractFiles: [] as { name: string; type: string; url: string }[],
     siteAddress: '',
     siteLat: '' as any,
     siteLng: '' as any,
@@ -81,6 +82,7 @@ form = {
     unitType: '',
     // Last Page
     BOQ_ShopDrawing: [] as string[] ,
+    boqFiles: [] as { name: string; type: string; url: string }[],
     Notes_SpecialInstructio: '',
 
     //if unit type is Elevator
@@ -245,7 +247,8 @@ form = {
     this.step = this.step + 1;
   }
   doSaveFinal() {  
-    this.save.emit({ ...this.form, clientId: this.selectedClientId, unitIds: this.selectedUnitIds });
+    const { contractFiles, boqFiles, ...rest } = this.form;
+    this.save.emit({ ...rest, clientId: this.selectedClientId, unitIds: this.selectedUnitIds });
   }
 
    forceDatePicker(event: Event) {
@@ -439,23 +442,25 @@ form = {
     // انا هخليه يبعت 0,1 وهعمل عليهم chack عشان اعرف في انهي واحد
     // لو ال element =0 يبقي كدا هيضيف في ال fils لكن لو 1 يبقي هيضيف في BOQ_ShopDrawing
     if(element==0){
-       this.form.files = [];
-       reader.onload = () => {
-        // تأكد إن النتيجة Base64 string صالحة
+      reader.onload = () => {
         if (reader.result) {
-          this.form.files.push(reader.result as string);
+          const url = reader.result as string;
+          this.form.contractFiles.push({ name: file.name, type: file.type, url });
+          if (file.type.startsWith('image/')) {
+            this.form.files.push(url);
+          }
         }
       };
-    }
-    else{
-       this.form.BOQ_ShopDrawing = [];
-       reader.onload = () => {
-         // تأكد إن النتيجة Base64 string صالحة
-         if (reader.result) {
-           this.form.BOQ_ShopDrawing.push(reader.result as string);
-         }
-       };
-  
+    } else {
+      reader.onload = () => {
+        if (reader.result) {
+          const url = reader.result as string;
+          this.form.boqFiles.push({ name: file.name, type: file.type, url });
+          if (file.type.startsWith('image/')) {
+            this.form.BOQ_ShopDrawing.push(url);
+          }
+        }
+      };
     }
    
      
@@ -466,6 +471,45 @@ form = {
   // افتح File Picker يدويًا
   input.click();
 }
+ openUrl(url: string, name?: string) {
+   const w = window.open('', '_blank');
+   if (!w) return;
+   const isPdf = url.startsWith('data:application/pdf') || /\.pdf($|\?)/i.test(url);
+   const content = isPdf
+     ? `<embed src="${url}" type="application/pdf" style="width:100%;height:95vh;">`
+     : `<img src="${url}" style="max-width:100%;height:auto;">`;
+   const download = `<a href="${url}" download="${name || 'download'}" style="margin:10px 0;display:inline-block;">Download</a>`;
+   w.document.write(`<!doctype html><html><head><title>Preview</title></head><body>${content}<div>${download}</div></body></html>`);
+   w.document.close();
+ }
+ removeContractFile(index: number) {
+   if (index < 0 || index >= this.form.contractFiles.length) return;
+   const item = this.form.contractFiles[index];
+   if (item.type.startsWith('image/')) {
+     const idx = this.form.files.indexOf(item.url);
+     if (idx >= 0) this.form.files.splice(idx, 1);
+   }
+   this.form.contractFiles.splice(index, 1);
+ }
+ removeBoqFile(index: number) {
+   if (index < 0 || index >= this.form.boqFiles.length) return;
+   const item = this.form.boqFiles[index];
+   if (item.type.startsWith('image/')) {
+     const idx = this.form.BOQ_ShopDrawing.indexOf(item.url);
+     if (idx >= 0) this.form.BOQ_ShopDrawing.splice(idx, 1);
+   }
+   this.form.boqFiles.splice(index, 1);
+ }
+
+ removeFile(index: number, element: number) {
+   if (element === 0) {
+     if (index < 0 || index >= this.form.files.length) return;
+     this.form.files.splice(index, 1);
+   } else {
+     if (index < 0 || index >= this.form.BOQ_ShopDrawing.length) return;
+     this.form.BOQ_ShopDrawing.splice(index, 1);
+   }
+ }
 // check select data in Unit type
 showUnitTypeError = false;
 

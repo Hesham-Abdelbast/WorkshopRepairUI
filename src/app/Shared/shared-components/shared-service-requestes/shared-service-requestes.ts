@@ -127,14 +127,14 @@ export class SharedServiceRequestes implements OnInit {
           name: item.unitName || 'Unknown Unit',
           units: item.unitName || '',
           status: item.status || 'New',
-          assignee: item.assignee || 'Unassigned',
-          address: item.address || 'Unknown Address', // Backend needs to provide this or we fetch unit details
+          assignee: item.assignedTaskItem?.assigneeUser?.fullName || 'Unassigned',
+          address: item.unit?.client?.address || 'Unknown Address',
           due: item.preferredTime || '',
           objective: item.description || '',
-          team: item.team || 'General',
-          slaDue: item.slaDue || '', // Backend logic needed
-          slaStatus: item.slaStatus || 'Pending',
-          priority: item.priority || 'Low',
+          team: item.assignedTaskItem?.team || 'General',
+          slaDue: item.assignedTaskItem?.slaDue || '',
+          slaStatus: item.assignedTaskItem?.slaStatus || 'Pending',
+          priority: item.assignedTaskItem?.priority || 'Low',
           visitType: item.serviceType || 'Maintenance',
           notes: item.notes || '',
           originalData: item

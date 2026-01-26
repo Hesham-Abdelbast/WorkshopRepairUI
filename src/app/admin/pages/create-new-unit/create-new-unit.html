@@ -129,6 +129,24 @@
         <textarea [(ngModel)]="form.Description" name="Description" placeholder="Add description"></textarea>
       </label>
 
+      <label class="full-width">
+        <input type="file" multiple accept="image/*,application/pdf" (change)="onFileSelected($event)">
+      </label>
+      <div class="selected-files">
+        <div class="file-item" *ngFor="let f of form.attachments; let i = index">
+          <button class="remove-file" (click)="removeAttachment(i)">✕</button>
+          <ng-container *ngIf="f.type.startsWith('image/'); else nonImageAtt">
+            <img [src]="f.url" (click)="openAttachment(f)">
+          </ng-container>
+          <ng-template #nonImageAtt>
+            <div class="file-chip" (click)="openAttachment(f)">
+              <span class="file-icon">📄</span>
+              <span class="file-name">{{ f.name }}</span>
+            </div>
+          </ng-template>
+        </div>
+      </div>
+
     </div>
 
     <!-- Buttons -->

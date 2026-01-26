@@ -20,8 +20,8 @@ export class UnitService {
 
   constructor(private http: HttpClient) { }
 
-  setNew(unit: Unit): Observable<Unit[]> {
-    return this.http.post<Unit[]>(`${API_BASE_URL}/Units`, unit);
+  setNew(unit: Unit): Observable<Unit> {
+    return this.http.post<Unit>(`${API_BASE_URL}/Units`, unit);
   }
   getAll(): Observable<Unit[]> {
     return this.http.get<Unit[]>(`${API_BASE_URL}/Units`);

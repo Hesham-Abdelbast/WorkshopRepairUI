@@ -78,7 +78,7 @@
              <td class="faded report-photos-cell">
                 <ng-container *ngIf="report.photos && report.photos.length > 0">
                   <div class="photos-preview">
-                    <img *ngFor="let photo of report.photos; let i = index" [src]="photo" alt="Report Photo" class="report-thumbnail" [class.extra-photos]="i >= 4">
+                  <img *ngFor="let photo of report.photos; let i = index" [src]="photo" alt="Report Photo" class="report-thumbnail" [class.extra-photos]="i >= 4" (click)="openInNewTab(photo)">
                     <span *ngIf="report.photos.length > 4" class="more-photos-count">
                         +{{report.photos.length - 4}}
                     </span>
@@ -114,7 +114,7 @@
               <ng-container *ngIf="report.photos && report.photos.length > 0">
                 <div class="photos-preview">
                   <img *ngFor="let photo of report.photos; let i = index" [src]="photo" alt="Report Photo"
-                    class="report-thumbnail" [class.extra-photos]="i >= 4">
+                    class="report-thumbnail" [class.extra-photos]="i >= 4" (click)="openInNewTab(photo)">
                   <span *ngIf="report.photos.length > 4" class="more-photos-count">
                     +{{report.photos.length - 4}}
                   </span>
@@ -180,7 +180,7 @@
     <p><strong>Comments:</strong> {{ selectedReport?.comments }}</p>
     <p><strong>Photos:</strong></p>
     <div class="thumbnail-row" *ngIf="selectedReport?.photos?.length">
-      <img *ngFor="let photo of selectedReport?.photos" [src]="photo" alt="Thumbnail">
+      <img *ngFor="let photo of selectedReport?.photos" [src]="photo" alt="Thumbnail" (click)="openInNewTab(photo)">
     </div>
   </div>
 </div>

@@ -277,7 +277,7 @@
           [class.active-thumbnail]="photo === mainImage">
       </div>
       <div class="main-photo-area">
-        <img [src]="mainImage" alt="Main Work Photo" *ngIf="mainImage" class="main-report-photo">
+        <img [src]="mainImage" alt="Main Work Photo" *ngIf="mainImage" class="main-report-photo" (click)="openInNewTab(mainImage)">
       </div>
     </div>
   </div>

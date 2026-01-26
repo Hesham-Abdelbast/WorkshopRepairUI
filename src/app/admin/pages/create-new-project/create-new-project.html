@@ -9,6 +9,7 @@
     <img src="assets/images/delete.png" alt="Delete">
   </button> -->
     </div>
+    
 
     <!-- STEP 1 -->
     <div *ngIf="step === 1" class="cnv-step">
@@ -180,21 +181,26 @@
 
 
 
-</div> 
-
-<!-- //Image -->
-   <!-- ✅ الزر الجديد لرفع الصور --> 
-    <!-- لاحظ تحت ال div الي بره  -->
-    <div class="upload-file">
-      <label class="label1">Upload Contract PDF</label>
-      <label class="label2">(Required for project creation)</label>
-    <div class="custom-file-upload" (click)="openFilePicker(0)">
-          <i class="pin-icon">
+        <label class="full-width">Contract Files
+          <div class="custom-file-upload" (click)="openFilePicker(0)">
+            <i class="pin-icon">
               <img src="/assets/images/imgIcon.png" alt="">
-          </i>
-          <span class="upload-text">Upload File</span>
+            </i>
+            <span class="upload-text">Upload File</span>
+          </div>
+        </label>
+        <div class="selected-files">
+          <div class="thumbnail-item" *ngFor="let f of form.contractFiles; let i = index">
+            <ng-container *ngIf="f.type.startsWith('image/'); else nonImgContract">
+              <img [src]="f.url" [alt]="f.name" (click)="openUrl(f.url, f.name)">
+            </ng-container>
+            <ng-template #nonImgContract>
+              <button type="button" (click)="openUrl(f.url, f.name)">{{ f.name }}</button>
+            </ng-template>
+            <button type="button" class="delete-icon" (click)="removeContractFile(i)">✕</button>
+          </div>
         </div>
-    </div> 
+      </div> 
   <div class="cnv-actions report-actions">
    <button type="button" class="cancel-button" (click)="goBack()">Back</button>
    <button type="button" class="save-button-large yellow-bg" (click)="goNext()">Next</button>
@@ -676,18 +682,26 @@
 </div>
 
 
-<!-- //Image -->
-   <!-- ✅ الزر الجديد لرفع الصور --> 
-    <!-- لاحظ تحت ال div الي بره  -->
-    <div class="upload-file">
-      <label class="label1">Upload BOQ or Shop Drawings </label>
-      <label class="label2">(Optional but recommended)</label>
-    <div class="custom-file-upload" (click)="openFilePicker(1)">
+    <div class="report-form-grid">
+      <label class="full-width">BOQ / Shop Drawings
+        <div class="custom-file-upload" (click)="openFilePicker(1)">
           <i class="pin-icon">
-              <img src="/assets/images/imgIcon.png" alt="">
+            <img src="/assets/images/imgIcon.png" alt="">
           </i>
           <span class="upload-text">Upload File</span>
         </div>
+      </label>
+      <div class="selected-files">
+        <div class="thumbnail-item" *ngFor="let f of form.boqFiles; let i = index">
+          <ng-container *ngIf="f.type.startsWith('image/'); else nonImgBoq">
+            <img [src]="f.url" [alt]="f.name" (click)="openUrl(f.url, f.name)">
+          </ng-container>
+          <ng-template #nonImgBoq>
+            <button type="button" (click)="openUrl(f.url, f.name)">{{ f.name }}</button>
+          </ng-template>
+          <button type="button" class="delete-icon" (click)="removeBoqFile(i)">✕</button>
+        </div>
+      </div>
     </div> 
 
 

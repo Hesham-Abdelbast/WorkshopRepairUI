@@ -65,4 +65,15 @@ export class ReportDetails implements OnInit{
    setMainImage(photoPath: string) {
     this.mainImage = photoPath;
   }
+  openUrl(url: string, name?: string) {
+    const w = window.open('', '_blank');
+    if (!w) return;
+    const isPdf = url.startsWith('data:application/pdf') || /\.pdf($|\?)/i.test(url);
+    const content = isPdf
+      ? `<embed src="${url}" type="application/pdf" style="width:100%;height:95vh;">`
+      : `<img src="${url}" style="max-width:100%;height:auto;">`;
+    const download = `<a href="${url}" download="${name || 'download'}" style="margin:10px 0;display:inline-block;">Download</a>`;
+    w.document.write(`<!doctype html><html><head><title>Preview</title></head><body>${content}<div>${download}</div></body></html>`);
+    w.document.close();
+  }
 }

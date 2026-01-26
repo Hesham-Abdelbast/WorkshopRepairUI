@@ -5,10 +5,11 @@
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  padding-top: 80px;
+  padding-top: 150px;
   overflow-y: auto;
   overflow-x: hidden;
   z-index: 1000;
+  padding-bottom: 50px;
 }
 
 .cnv-modal {
@@ -18,8 +19,9 @@
   max-width: 95%;
   padding: 20px;
   position: relative;
-  max-height: calc(100vh - 120px);
-  overflow-y: auto;
+  /* max-height: calc(100vh - 120px);
+  overflow-y: auto; */
+  margin-bottom: 50px;
 }
 
 .cnv-close {

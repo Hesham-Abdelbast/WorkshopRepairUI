@@ -32,7 +32,7 @@
       </label>
 
       <label>Units
-        <select [(ngModel)]="form.units" name="units">
+        <select [(ngModel)]="form.units" name="units" (ngModelChange)="onUnitChange($event)">
           <option value="" disabled selected>Select Unit</option>
           <option *ngFor="let u of units" [value]="u.id">{{u.model}} ({{u.serial}})</option>
 
@@ -46,7 +46,8 @@
       </ng-container>
       <ng-template #nominatimTpl>
         <label>Address <span class="required">*</span>
-          <input type="text" [(ngModel)]="addressQuery" name="addressQuery" (input)="onAddressInput()"
+          <input type="text" [(ngModel)]="form.address" name="address"
+            (input)="onAddressInput()"
             placeholder="Type address" />
         </label>
         <div *ngIf="showAddressDropdown && addressSuggestions.length > 0" class="suggestions">

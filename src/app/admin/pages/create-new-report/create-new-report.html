@@ -59,13 +59,19 @@
           </i>
           <span class="upload-text">Upload File</span>
         </div>
-            <div class="selected-files" *ngIf="form.photos.length">
+        <div class="selected-files" *ngIf="form.photos.length">
         <div class="selected-thumb" *ngFor="let p of form.photos; let i = index">
-          <img [src]="p" alt="photo" />
+          <img [src]="p" alt="photo" (click)="openUrl(p)"/>
           <button type="button" class="remove-photo" (click)="removePhoto(i)">×</button>
         </div>
       </div>
       </label>
+      <div class="selected-files" *ngIf="form.files.length">
+        <div class="selected-thumb" *ngFor="let f of form.files; let i = index">
+          <button type="button" (click)="openUrl(f.url)">{{ f.name }}</button>
+          <button type="button" class="remove-photo" (click)="removeFile(i)">×</button>
+        </div>
+      </div>
 
       <label>Team Assigned <span class="required">*</span>
           <select [(ngModel)]="form.teamAssigned" name="teamAssigned"
